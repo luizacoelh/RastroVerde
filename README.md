@@ -13,7 +13,7 @@ Requisitos: Node.js 22.12+ e um projeto no [Supabase](https://supabase.com) (pla
 
 ```bash
 npm install                # também gera o Prisma Client
-cp env.example .env        # preencha DATABASE_URL, DIRECT_URL e AUTH_SECRET
+cp .env.example .env       # preencha DATABASE_URL, DIRECT_URL e AUTH_SECRET
 npm run db:deploy          # aplica as migrações no banco
 npm run dev                # http://localhost:3000
 ```
