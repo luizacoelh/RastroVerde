@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { BotaoExcluir } from "@/components/botao-excluir";
+import { MapaTalhoes } from "@/components/mapa/mapa-talhoes";
 import { LinkBotao, Trilha } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
 import { listarTalhoes, obterPropriedade } from "@/lib/dados/propriedades";
+import { colecaoDeTalhoes } from "@/lib/geo/colecao";
 import { formatarHa } from "@/lib/geo/talhao";
 import { excluirPropriedade } from "../actions";
 
@@ -62,19 +64,24 @@ export default async function PaginaPropriedade({ params }: PageProps<"/propried
             Nenhum talhão ainda. Desenhe no mapa a área exata de produção.
           </p>
         ) : (
-          <ul className="divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
-            {talhoes.map((t) => (
-              <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="font-medium">{t.nome}</p>
-                  <p className="text-sm text-stone-600">{formatarHa(t.areaHa)}</p>
-                </div>
-                <LinkBotao variante="secundario" href={`/propriedades/${p.id}/talhoes/${t.id}`}>
-                  Ver / editar
-                </LinkBotao>
-              </li>
-            ))}
-          </ul>
+          <>
+            <div className="mb-3">
+              <MapaTalhoes talhoes={colecaoDeTalhoes(talhoes)} />
+            </div>
+            <ul className="divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
+              {talhoes.map((t) => (
+                <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                  <div>
+                    <p className="font-medium">{t.nome}</p>
+                    <p className="text-sm text-stone-600">{formatarHa(t.areaHa)}</p>
+                  </div>
+                  <LinkBotao variante="secundario" href={`/propriedades/${p.id}/talhoes/${t.id}`}>
+                    Ver / editar
+                  </LinkBotao>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </section>
     </>
