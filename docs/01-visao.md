@@ -88,6 +88,21 @@ O MVP é deliberadamente pequeno para caber em 4 semanas (05/11 a 04/12/2026) co
 
 Qualquer item novo entra no backlog como "pós-MVP" e só é puxado com aprovação do PO.
 
+### Evoluções futuras (pós-MVP)
+
+Itens fora do escopo atual, mas previstos no roadmap do produto:
+
+| Evolução | Valor para o usuário |
+|---|---|
+| **Integração com o SICAR** (Cadastro Ambiental Rural — registro público obrigatório com o perímetro de cada imóvel rural) | Importar o polígono do imóvel pelo número do CAR, sem desenhar à mão |
+| **Dados de desmatamento em tempo real** (APIs MapBiomas Alerta e INPE) | Análise sempre com a base mais recente, para todo o Brasil |
+| **Imagens de satélite** (Sentinel-2) no mapa, antes/depois de 2020 | Evidência visual no dossiê |
+| **Checagens socioambientais extras**: terras indígenas, unidades de conservação, embargos do IBAMA, lista de trabalho escravo | Análise completa de risco |
+| **Aplicativo mobile com modo offline** | Uso no campo, sem sinal, com GPS do celular |
+| **Perfil de cooperativa / técnico** com carteira de produtores | Atender muitos produtores de uma vez |
+| **Envio ao TRACES (sistema oficial da UE)** | Fechar a declaração de diligência sem retrabalho |
+| **Rastreio de lotes** do talhão até o embarque | Ligar cada carga vendida à área de origem |
+
 ## 7. Premissas e restrições
 
 - Os dados de desmatamento usados no MVP são uma amostra pública e **o dossiê não substitui
