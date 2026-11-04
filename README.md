@@ -5,7 +5,28 @@ Dossiê de conformidade socioambiental para exportação agrícola (EUDR — Reg
 O produtor cadastra o talhão, o sistema cruza o polígono com alertas de desmatamento posteriores a
 31/12/2020 e gera um dossiê em PDF com QR code verificável pelo comprador.
 
-> Status: **documentação e planejamento concluídos** · MVP em desenvolvimento.
+> Status: **Sprint 1 em andamento** — acesso, propriedades e desenho de talhões.
+
+## Como rodar
+
+Requisitos: Node.js 22.12+ e um projeto no [Supabase](https://supabase.com) (plano gratuito).
+
+```bash
+npm install                # também gera o Prisma Client
+cp env.example .env        # preencha DATABASE_URL, DIRECT_URL e AUTH_SECRET
+npm run db:deploy          # aplica as migrações no banco
+npm run dev                # http://localhost:3000
+```
+
+| Script | O que faz |
+|---|---|
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Tipos de rota do Next + `tsc` |
+| `npm test` / `npm run test:coverage` | Vitest (cobertura mínima de 70% em `src/lib/geo`) |
+| `npm run build` | Build de produção |
+| `npm run db:migrate` | Cria uma nova migração a partir do `prisma/schema.prisma` (desenvolvimento) |
+
+O CI (`.github/workflows/ci.yml`) roda lint, typecheck, testes e build em todo PR.
 
 ## Equipe
 

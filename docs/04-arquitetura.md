@@ -29,8 +29,14 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
 - **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10).
 - **ADR-05 — Supabase como PostgreSQL gerenciado.** Substitui o Neon (decisão da PO, 04/11/2026).
   Usado só como banco Postgres via Prisma: a aplicação conecta pelo *pooler* (`DATABASE_URL`,
-  porta 6543) e as migrações usam a conexão direta (`DIRECT_URL`, porta 5432). Autenticação
+  modo *transaction*, porta 6543) e as migrações usam o pooler em modo *session* (`DIRECT_URL`,
+  porta 5432; a conexão direta do plano gratuito é só IPv6). Autenticação
   continua no Auth.js; Supabase Auth, Storage e o SDK `supabase-js` não são usados no MVP.
+  Como o schema `public` é exposto pela Data API do Supabase, a migração inicial ativa RLS sem
+  políticas em todas as tabelas (nega o acesso pela API; o Prisma conecta como dono e não é afetado).
+- **ADR-06 — Next.js sem Cache Components.** O `create-next-app` 16 liga `cacheComponents`; no MVP
+  ele fica desligado porque todas as telas dependem da sessão do usuário. Usamos renderização
+  dinâmica e a checagem otimista de sessão no `src/proxy.ts` (antigo middleware).
 
 ## 4.2 Diagrama de contexto
 
@@ -152,14 +158,21 @@ erDiagram
     string nome
     json geometria
     float areaHa
-    json bbox
+    float bboxMinLng
+    float bboxMinLat
+    float bboxMaxLng
+    float bboxMaxLat
   }
   ALERTA {
     string id PK
     string baseId FK
+    string codigoFonte
     json geometria
     date dataDeteccao
-    json bbox
+    float bboxMinLng
+    float bboxMinLat
+    float bboxMaxLng
+    float bboxMaxLat
   }
   BASE_ALERTAS {
     string id PK
@@ -175,6 +188,7 @@ erDiagram
     float percentual
     string risco
     json sobreposicao
+    boolean obsoleta
     datetime criadaEm
   }
   DOSSIE {
@@ -186,6 +200,13 @@ erDiagram
     datetime emitidoEm
   }
 ```
+
+Notas de implementação (`prisma/schema.prisma`):
+- O retângulo envolvente (bbox) fica em 4 colunas numéricas indexadas, para o filtro prévio
+  da análise ser uma consulta simples (ADR-01).
+- `ANALISE.obsoleta` implementa a RN03: editar o polígono marca as análises anteriores como
+  obsoletas (o histórico é mantido).
+- `PROPRIEDADE` também guarda `criadoEm`/`alteradoEm`; `USUARIO`, `criadoEm`.
 
 ## 4.6 Sequência — análise e dossiê
 
