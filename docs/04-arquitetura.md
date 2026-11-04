@@ -10,7 +10,7 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
 | UI | Tailwind CSS | Rapidez para montar telas |
 | Mapa | **MapLibre GL JS** + **Terra Draw** | Mapas vetoriais open source; desenho de polígonos |
 | Análise geoespacial | **Turf.js** | Interseção e área de polígonos em TypeScript, sem servidor GIS |
-| Banco de dados | **PostgreSQL (Neon)** + Prisma ORM | Gratuito, serverless; geometria guardada como GeoJSON (JSONB) + bbox indexado |
+| Banco de dados | **PostgreSQL (Supabase)** + Prisma ORM | Plano gratuito, Postgres gerenciado com pooler; geometria guardada como GeoJSON (JSONB) + bbox indexado |
 | Autenticação | Auth.js (credenciais, JWT) | Padrão do ecossistema Next |
 | IA | **Google Gemini** (API) | Resumo em linguagem simples; plano gratuito |
 | PDF e QR | `@react-pdf/renderer`, `qrcode` | PDF gerado no servidor |
@@ -27,6 +27,10 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
 - **ADR-03 — Base de alertas estática e versionada.** Importada por script (RF19); cada análise
   registra a versão (RNF11). Elimina dependência de APIs externas instáveis.
 - **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10).
+- **ADR-05 — Supabase como PostgreSQL gerenciado.** Substitui o Neon (decisão da PO, 04/11/2026).
+  Usado só como banco Postgres via Prisma: a aplicação conecta pelo *pooler* (`DATABASE_URL`,
+  porta 6543) e as migrações usam a conexão direta (`DIRECT_URL`, porta 5432). Autenticação
+  continua no Auth.js; Supabase Auth, Storage e o SDK `supabase-js` não são usados no MVP.
 
 ## 4.2 Diagrama de contexto
 
@@ -67,7 +71,7 @@ flowchart LR
     REPO[Prisma ORM]
   end
 
-  DB[(PostgreSQL - Neon)]
+  DB[(PostgreSQL - Supabase)]
   SCRIPT[Script de importação<br/>de alertas - CLI]
   GEM[(Gemini API)]
 
@@ -96,7 +100,7 @@ flowchart TB
     EDGE[CDN / HTTPS]
     FN[Funções Serverless Node.js<br/>Next.js 16]
   end
-  subgraph "Neon (sa-east-1)"
+  subgraph "Supabase (sa-east-1)"
     PG[(PostgreSQL 16)]
   end
   subgraph Google Cloud
@@ -222,4 +226,4 @@ sequenceDiagram
 | RF14–RF17, RNF10 | Serviço de Dossiê + Cliente Gemini com fallback |
 | RF18, RNF06 | Rota pública `/verificar` (só dados não pessoais) |
 | RF19 | Script de importação |
-| RNF05, RNF13 | Vercel (HTTPS) + Neon |
+| RNF05, RNF13 | Vercel (HTTPS) + Supabase |

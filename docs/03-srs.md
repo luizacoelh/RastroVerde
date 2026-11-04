@@ -91,7 +91,7 @@ redigir o resumo do dossiê.
 | RNF10 | Confiabilidade | Falha da IA não impede a geração do dossiê (RF16). |
 | RNF11 | Rastreabilidade | Toda análise guarda a versão da base de alertas usada. |
 | RNF12 | Manutenibilidade | TypeScript estrito, lint no CI, cobertura de testes ≥ 70% no módulo de análise geoespacial. |
-| RNF13 | Portabilidade | Implantação em Vercel + PostgreSQL gerenciado (Neon), sem servidor próprio. |
+| RNF13 | Portabilidade | Implantação em Vercel + PostgreSQL gerenciado (Supabase), sem servidor próprio. |
 | RNF14 | Legal | O dossiê informa que não substitui a declaração de diligência oficial. |
 
 ## 5. Regras de negócio

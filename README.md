@@ -29,5 +29,5 @@ Escopo do MVP e evoluções futuras: [docs/01-visao.md](docs/01-visao.md#6-escop
 
 ## Stack
 
-Next.js 16 · TypeScript · Tailwind · MapLibre GL + Terra Draw · Turf.js · PostgreSQL (Neon) + Prisma ·
+Next.js 16 · TypeScript · Tailwind · MapLibre GL + Terra Draw · Turf.js · PostgreSQL (Supabase) + Prisma ·
 Auth.js · Google Gemini · Vercel.

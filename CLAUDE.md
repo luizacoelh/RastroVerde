@@ -10,7 +10,7 @@ Documentação em `docs/` (visão, backlog, SRS, arquitetura, protótipo, plano)
 
 ## Stack
 Next.js 16 (App Router; ler `node_modules/next/dist/docs/` antes de usar API nova), TypeScript estrito, Tailwind,
-MapLibre GL + Terra Draw, Turf.js, PostgreSQL (Neon) + Prisma, Auth.js, Gemini (opcional, com fallback), Vercel.
+MapLibre GL + Terra Draw, Turf.js, PostgreSQL (Supabase) + Prisma, Auth.js, Gemini (opcional, com fallback), Vercel.
 
 ## Regras
 - Git: nunca commitar na `main`; branches `feat/*`, `fix/*`, `docs/*`; Conventional Commits; PR com revisão.

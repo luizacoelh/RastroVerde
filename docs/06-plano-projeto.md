@@ -52,7 +52,7 @@ gantt
 
 | Tarefa | Responsável | Sprint |
 |---|---|---|
-| Setup do projeto (Next.js, Prisma, Neon, Vercel, CI) | Luiza | 1 |
+| Setup do projeto (Next.js, Prisma, Supabase, Vercel, CI) | Luiza | 1 |
 | Autenticação (US01, US02) | Luiza | 1 |
 | CRUD de propriedades — telas (US03) | Lucas | 1 |
 | Componente de mapa com desenho (US04) | Lucas | 1 |
@@ -73,7 +73,7 @@ gantt
 - [x] Repositório no GitHub com a documentação.
 - [ ] Criar o quadro no GitHub Projects com as histórias US01–US13.
 - [ ] Baixar o recorte de alertas (1–2 municípios produtores de soja no MATOPIBA) em GeoJSON.
-- [ ] Criar contas gratuitas: Vercel, Neon, Google AI Studio (Gemini).
+- [ ] Criar contas gratuitas: Vercel, Supabase, Google AI Studio (Gemini).
 - [ ] Confirmar a entrada do Lucas e ajustar a divisão de tarefas.
 
 ## 6.6 Gestão de escopo
