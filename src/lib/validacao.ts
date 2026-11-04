@@ -72,9 +72,21 @@ export function valoresDoFormulario(formData: FormData, campos: readonly string[
   return valores;
 }
 
-/** Só aceita caminhos internos ("/x"), evitando redirecionamento aberto. */
+/**
+ * Devolve só o caminho interno ("/x?y") de um callbackUrl, descartando qualquer host,
+ * para evitar redirecionamento aberto.
+ */
 export function caminhoInternoSeguro(valor: unknown, padrao = "/propriedades"): string {
-  if (typeof valor !== "string") return padrao;
-  if (!valor.startsWith("/") || valor.startsWith("//") || valor.startsWith("/\\")) return padrao;
-  return valor;
+  if (typeof valor !== "string" || valor === "") return padrao;
+  let caminho = valor;
+  if (/^https?:\/\//i.test(valor)) {
+    try {
+      const url = new URL(valor);
+      caminho = url.pathname + url.search;
+    } catch {
+      return padrao;
+    }
+  }
+  if (!caminho.startsWith("/") || caminho.startsWith("//") || caminho.startsWith("/\\")) return padrao;
+  return caminho;
 }

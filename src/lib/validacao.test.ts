@@ -40,7 +40,10 @@ describe("esquemaPropriedade", () => {
 describe("caminhoInternoSeguro", () => {
   it.each([
     ["/propriedades/abc", "/propriedades/abc"],
-    ["https://malicioso.com", "/propriedades"],
+    ["http://localhost:3000/propriedades/abc?x=1", "/propriedades/abc?x=1"],
+    ["https://malicioso.com", "/"],
+    ["https://malicioso.com//outro.com", "/propriedades"],
+    ["javascript:alert(1)", "/propriedades"],
     ["//malicioso.com", "/propriedades"],
     ["/\\malicioso.com", "/propriedades"],
     [null, "/propriedades"],
