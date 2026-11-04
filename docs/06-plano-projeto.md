@@ -62,6 +62,7 @@ gantt
 | Tela de resultado com sobreposição no mapa (US08) | Lucas | 2 |
 | Importação de GeoJSON (US05) | Lucas | 2 |
 | Geração de PDF, QR code e hash (US10) | Luiza | 3 |
+| Bloqueio de exclusão de talhão com dossiê emitido (RN04, US06) | Luiza | 3 |
 | Integração Gemini com fallback (US11) | Luiza | 3 |
 | Página pública de verificação + histórico (US12, US09) | Lucas | 3 |
 | Testes E2E (Playwright) e relatório de testes | Lucas | Fech. |
