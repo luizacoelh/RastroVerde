@@ -1,0 +1,138 @@
+// Modelo de dados do RastroVerde — ver docs/04-arquitetura.md §4.5.
+// Geometrias em GeoJSON (WGS 84 / EPSG:4326) guardadas como JSONB.
+// O retângulo envolvente (bbox) fica em 4 colunas numéricas indexadas para o filtro
+// prévio da análise (ADR-01).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Risco {
+  BAIXO
+  ATENCAO
+  ALTO
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  criadoEm  DateTime @default(now())
+
+  propriedades Propriedade[]
+
+  @@map("usuario")
+}
+
+model Propriedade {
+  id        String   @id @default(cuid())
+  usuarioId String
+  nome      String
+  municipio String
+  uf        String   @db.Char(2)
+  cultura   String
+  car       String?
+  criadoEm  DateTime @default(now())
+  alteradoEm DateTime @updatedAt
+
+  usuario Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  talhoes Talhao[]
+
+  @@index([usuarioId])
+  @@map("propriedade")
+}
+
+model Talhao {
+  id            String   @id @default(cuid())
+  propriedadeId String
+  nome          String
+  /// GeoJSON Geometry (Polygon ou MultiPolygon)
+  geometria     Json
+  areaHa        Float
+  bboxMinLng    Float
+  bboxMinLat    Float
+  bboxMaxLng    Float
+  bboxMaxLat    Float
+  criadoEm      DateTime @default(now())
+  alteradoEm    DateTime @updatedAt
+
+  propriedade Propriedade @relation(fields: [propriedadeId], references: [id], onDelete: Cascade)
+  analises    Analise[]
+
+  @@index([propriedadeId])
+  @@map("talhao")
+}
+
+model BaseAlertas {
+  id          String   @id @default(cuid())
+  fonte       String
+  versao      String
+  importadaEm DateTime @default(now())
+
+  alertas  Alerta[]
+  analises Analise[]
+
+  @@unique([fonte, versao])
+  @@map("base_alertas")
+}
+
+model Alerta {
+  id           String   @id @default(cuid())
+  baseId       String
+  /// Identificador do alerta na fonte original (ex.: código MapBiomas)
+  codigoFonte  String?
+  /// GeoJSON Geometry (Polygon ou MultiPolygon)
+  geometria    Json
+  dataDeteccao DateTime @db.Date
+  bboxMinLng   Float
+  bboxMinLat   Float
+  bboxMaxLng   Float
+  bboxMaxLat   Float
+
+  base BaseAlertas @relation(fields: [baseId], references: [id], onDelete: Cascade)
+
+  @@index([baseId, dataDeteccao])
+  @@index([bboxMinLng, bboxMaxLng, bboxMinLat, bboxMaxLat])
+  @@map("alerta")
+}
+
+model Analise {
+  id                String   @id @default(cuid())
+  talhaoId          String
+  baseId            String
+  areaSobrepostaHa  Float
+  percentual        Float
+  risco             Risco
+  /// GeoJSON FeatureCollection com as áreas sobrepostas
+  sobreposicao      Json
+  /// RN03: true quando o polígono do talhão foi editado depois desta análise
+  obsoleta          Boolean  @default(false)
+  criadaEm          DateTime @default(now())
+
+  talhao Talhao      @relation(fields: [talhaoId], references: [id], onDelete: Cascade)
+  base   BaseAlertas @relation(fields: [baseId], references: [id], onDelete: Restrict)
+  dossie Dossie?
+
+  @@index([talhaoId, criadaEm])
+  @@map("analise")
+}
+
+model Dossie {
+  id        String   @id @default(cuid())
+  analiseId String   @unique
+  codigo    String   @unique
+  /// SHA-256 (hex) do conteúdo do dossiê
+  hash      String
+  resumoIA  String?
+  emitidoEm DateTime @default(now())
+
+  analise Analise @relation(fields: [analiseId], references: [id], onDelete: Cascade)
+
+  @@map("dossie")
+}
