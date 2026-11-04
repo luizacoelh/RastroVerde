@@ -4,9 +4,8 @@
 
 | Integrante | Papel Scrum | Responsabilidades |
 |---|---|---|
-| Professor | Product Owner | Prioriza o backlog, aceita os incrementos nas Reviews |
-| Luiza Coelho | Scrum Master + Dev | Facilita as cerimônias, remove impedimentos; back-end, análise geoespacial, PDF, deploy |
-| Lucas | Dev | Front-end (telas e mapa), testes E2E, manual do usuário |
+| Luiza Coelho | Product Owner + Dev | Prioriza o backlog, aceita os incrementos; back-end, análise geoespacial, PDF, deploy |
+| Lucas | Scrum Master + Dev | Facilita as cerimônias, remove impedimentos; front-end (telas e mapa), testes E2E, manual do usuário |
 
 > Papéis provisórios. Se a equipe ficar com 1 pessoa, o plano mantém só as histórias **Must**.
 
@@ -29,21 +28,21 @@ gantt
   title RastroVerde — 2026
   dateFormat YYYY-MM-DD
   axisFormat %d/%m
-  section Avaliação 1
+  section Concepção
   Documentação e planejamento (Sprint 0)  :done, s0, 2026-10-28, 2026-11-04
-  Entrega Avaliação 1                      :milestone, m1, 2026-11-04, 0d
+  Documentação concluída                   :milestone, m1, 2026-11-04, 0d
   section Desenvolvimento
   Sprint 1 - Acesso, propriedades, talhões :s1, 2026-11-05, 10d
   Sprint 2 - Análise de desmatamento       :s2, 2026-11-15, 10d
   Sprint 3 - Dossiê, IA e verificação      :s3, 2026-11-25, 6d
   section Fechamento
-  Testes, manual, doc técnica, apresentação :f, 2026-12-01, 3d
-  Entrega Avaliação 2                       :milestone, m2, 2026-12-04, 0d
+  Testes, manual, doc técnica, demo        :f, 2026-12-01, 3d
+  Lançamento do MVP                         :milestone, m2, 2026-12-04, 0d
 ```
 
 | Sprint | Período | Meta | Histórias | Pts |
 |---|---|---|---|---|
-| 0 | até 04/11 | Documentação da Avaliação 1, repositório criado | — | — |
+| 0 | até 04/11 | Documentação e planejamento, repositório criado | — | — |
 | 1 | 05/11 – 14/11 | Usuário entra, cadastra propriedade e desenha talhão | US01, US02, US03, US04, US06 | 19 |
 | 2 | 15/11 – 24/11 | Talhão analisado com risco no mapa | US05, US07, US08, US13 | 19 |
 | 3 | 25/11 – 30/11 | Dossiê PDF verificável por QR code | US09, US10, US11, US12 | 12 |
@@ -69,7 +68,7 @@ gantt
 | Manual do usuário | Lucas | Fech. |
 | Documentação técnica e slides | Luiza | Fech. |
 
-## 6.5 Preparação para o Trabalho 2
+## 6.5 Preparação para o desenvolvimento
 
 - [x] Repositório no GitHub com a documentação.
 - [ ] Criar o quadro no GitHub Projects com as histórias US01–US13.
@@ -80,6 +79,6 @@ gantt
 ## 6.6 Gestão de escopo
 
 O escopo do MVP é o da [seção 6 da Visão](01-visao.md#6-escopo-do-mvp). Pedidos novos entram no
-backlog como "pós-MVP"; só entram em sprint com aprovação do PO e se couberem na capacidade.
+backlog como "pós-MVP"; só entram em sprint com aprovação da PO e se couberem na capacidade.
 Se uma sprint atrasar, cortam-se primeiro os itens **Should** (US05, US09, US11, US13 — este último
 vira importação manual).

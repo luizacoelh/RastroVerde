@@ -3,8 +3,7 @@
 | Item | Valor |
 |---|---|
 | Versão | 1.0 — 04/11/2026 |
-| Equipe | Luiza Coelho (SM/Dev), Lucas (Dev) |
-| Product Owner | Professor da disciplina |
+| Equipe | Luiza Coelho (PO/Dev), Lucas (SM/Dev) |
 
 ## 1. Contexto
 
@@ -86,7 +85,7 @@ O MVP é deliberadamente pequeno para caber em 4 semanas (05/11 a 04/12/2026) co
 - Aplicativo mobile, modo offline, multi-idioma.
 - Perfis de cooperativa/multiempresa, pagamentos, planos.
 
-Qualquer item novo entra no backlog como "pós-MVP" e só é puxado com aprovação do PO.
+Qualquer item novo entra no backlog como "pós-MVP" e só é puxado com aprovação da PO.
 
 ### Evoluções futuras (pós-MVP)
 
