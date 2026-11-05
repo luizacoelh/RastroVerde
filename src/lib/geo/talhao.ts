@@ -62,7 +62,11 @@ function normalizarPoligono(coords: unknown): Position[][] | string {
   return aneis;
 }
 
-function normalizar(entrada: unknown): GeometriaTalhao | string {
+/**
+ * Confere tipo (Polygon/MultiPolygon), coordenadas WGS 84 e anéis fechados; devolve a
+ * geometria só com [lng, lat] ou uma mensagem de erro. Não checa área nem auto-interseção.
+ */
+export function normalizarGeometriaPoligonal(entrada: unknown): GeometriaTalhao | string {
   if (typeof entrada !== "object" || entrada === null) return "Geometria inválida.";
   const { type, coordinates } = entrada as { type?: unknown; coordinates?: unknown };
 
@@ -93,7 +97,7 @@ export function calcularAreaHa(geometria: GeometriaTalhao): number {
  * 10.000 ha) e devolve a geometria normalizada (2D), a área em hectares e o bbox.
  */
 export function validarGeometriaTalhao(entrada: unknown): ResultadoValidacao {
-  const geometria = normalizar(entrada);
+  const geometria = normalizarGeometriaPoligonal(entrada);
   if (typeof geometria === "string") return falha(geometria);
 
   const feature: Feature<GeometriaTalhao> = { type: "Feature", properties: {}, geometry: geometria };
@@ -116,5 +120,7 @@ export function validarGeometriaTalhao(entrada: unknown): ResultadoValidacao {
 const formatoHa = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
 
 export function formatarHa(valor: number): string {
+  // Áreas pequenas (ex.: sobreposição de poucos m²) não podem aparecer como "0 ha".
+  if (valor > 0 && valor < 0.01) return "< 0,01 ha";
   return `${formatoHa.format(valor)} ha`;
 }
