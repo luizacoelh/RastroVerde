@@ -70,6 +70,14 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 **US12 — Verificação pública**
 - URL `/verificar/{codigo}` sem login mostra: válido/inválido, data, risco e hash do dossiê.
 
+## Pendências para a Sprint 3 (da revisão da Sprint 2)
+
+| Item | História | Observação |
+|---|---|---|
+| Risco da última análise na lista de propriedades | US08 | Wireframe 2 (`docs/05-prototipo.md`); hoje o risco aparece só na lista de talhões de cada propriedade. |
+| Teste E2E da RN03 | US06/US07 | Editar o polígono de um talhão analisado deve marcar a análise como obsoleta e pedir nova análise. |
+| Bloqueio de exclusão de talhão com dossiê emitido | US06 | RN04; junto com o dossiê (US10). |
+
 ## Pós-MVP (registrado, fora das sprints)
 
 | Item | Origem | Observação |
