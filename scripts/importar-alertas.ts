@@ -1,7 +1,7 @@
 // Importa uma base de alertas de desmatamento (recorte GeoJSON) — US13, RF19, ADR-03.
 //
 // Uso:
-//   npm run alertas:importar -- --arquivo alertas.geojson --cobertura municipios.geojson \
+//   npm run alertas:importar -- --arquivo alertas.geojson --cobertura municipio1.geojson [--cobertura municipio2.geojson] \
 //     --fonte "MapBiomas Alerta" --versao 2026-11 [--campo-data DATADETEC] [--campo-codigo CODEALERTA]
 //
 // Cada (fonte, versão) é importada uma única vez e não muda depois (RNF11: as análises
@@ -18,7 +18,8 @@ const AJUDA = `Importa uma base de alertas de desmatamento (GeoJSON em WGS 84).
 
 Obrigatórios:
   --arquivo <caminho>     GeoJSON com os polígonos dos alertas
-  --cobertura <caminho>   GeoJSON com a área coberta pelo recorte (ex.: limites dos municípios)
+  --cobertura <caminho>   GeoJSON com a área coberta pelo recorte (ex.: limite do município);
+                          repita a opção para vários municípios
   --fonte <texto>         Ex.: "MapBiomas Alerta"
   --versao <texto>        Ex.: 2026-11
 
@@ -49,7 +50,7 @@ async function main() {
   const { values } = parseArgs({
     options: {
       arquivo: { type: "string" },
-      cobertura: { type: "string" },
+      cobertura: { type: "string", multiple: true },
       fonte: { type: "string" },
       versao: { type: "string" },
       "campo-data": { type: "string", default: "DATADETEC" },
@@ -62,12 +63,18 @@ async function main() {
 
   const fonte = values.fonte?.trim();
   const versao = values.versao?.trim();
-  if (values.ajuda || !values.arquivo || !values.cobertura || !fonte || !versao) {
+  if (values.ajuda || !values.arquivo || !values.cobertura?.length || !fonte || !versao) {
     console.log(AJUDA);
     process.exit(values.ajuda ? 0 : 1);
   }
 
-  const cobertura = prepararCobertura(await lerJson(values.cobertura));
+  // Junta as feições de todos os arquivos de cobertura num só FeatureCollection.
+  const feicoesCobertura: unknown[] = [];
+  for (const caminho of values.cobertura) {
+    const lido = (await lerJson(caminho)) as { type?: string; features?: unknown[] };
+    feicoesCobertura.push(...(lido?.type === "FeatureCollection" && Array.isArray(lido.features) ? lido.features : [lido]));
+  }
+  const cobertura = prepararCobertura({ type: "FeatureCollection", features: feicoesCobertura });
   if (typeof cobertura === "string") throw new Error(cobertura);
 
   const preparados = prepararAlertas(await lerJson(values.arquivo), {
