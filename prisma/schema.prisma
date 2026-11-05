@@ -74,6 +74,13 @@ model BaseAlertas {
   fonte       String
   versao      String
   importadaEm DateTime @default(now())
+  /// Área coberta pelo recorte (GeoJSON Polygon/MultiPolygon, ex.: limites dos municípios).
+  /// Talhão fora dela → "região sem dados" (UC4).
+  cobertura   Json
+  bboxMinLng  Float
+  bboxMinLat  Float
+  bboxMaxLng  Float
+  bboxMaxLat  Float
 
   alertas  Alerta[]
   analises Analise[]
