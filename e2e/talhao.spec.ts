@@ -1,14 +1,8 @@
 // Fluxo da Sprint 1 no navegador: cadastro → propriedade → desenho do talhão (US01, US03, US04).
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { criarContaEPropriedade, lerHa } from "./auxiliares";
 
 const AREA_ALVO_HA = 5;
-
-/** Lê "1.234,57 ha" como número. */
-function lerHa(texto: string): number {
-  const m = texto.match(/(\d[\d.]*(?:,\d+)?)\s*ha/);
-  if (!m) throw new Error(`Área não encontrada em "${texto}"`);
-  return Number(m[1].replace(/\./g, "").replace(",", "."));
-}
 
 /** Metros por pixel no centro do mapa, a partir da barra de escala do MapLibre. */
 async function metrosPorPixel(mapa: Locator): Promise<number> {
@@ -46,23 +40,8 @@ test("desenha um talhão de ~5 ha com vértices visíveis, desfazer e Esc", asyn
   });
   page.on("pageerror", (err) => errosConsole.push(err.message));
 
-  // Cadastro (US01)
-  await page.goto("/cadastro");
-  await page.getByLabel("Nome").fill("Teste E2E");
-  await page.getByLabel("E-mail").fill(`e2e-${Date.now()}@teste.local`);
-  await page.getByLabel("Senha").fill("senha-e2e-123");
-  await page.locator('button[type="submit"]').click();
-  await expect(page).toHaveURL(/\/propriedades$/, { timeout: 60_000 });
-
-  // Propriedade (US03)
-  await page.goto("/propriedades/nova");
-  await page.getByLabel("Nome da propriedade").fill("Fazenda E2E");
-  await page.getByLabel("Município").fill("Luís Eduardo Magalhães");
-  await page.getByLabel("UF").selectOption("BA");
-  await page.getByLabel("Cultura").selectOption("Soja");
-  await page.locator("main").locator('button[type="submit"]').click();
-  await expect(page).toHaveURL(/\/propriedades\/(?!nova$)[^/]+$/, { timeout: 60_000 });
-  const urlPropriedade = page.url();
+  // Cadastro e propriedade (US01, US03)
+  const urlPropriedade = await criarContaEPropriedade(page);
 
   // Desenho (US04)
   await page.getByRole("link", { name: "+ Desenhar talhão" }).click();
