@@ -52,3 +52,6 @@ next-env.d.ts
 # playwright
 /test-results/
 /playwright-report/
+
+# dados brutos baixados (PRODES, IBGE, recortes) — grandes e reprodutíveis
+/dados/
