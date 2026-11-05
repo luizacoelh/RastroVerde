@@ -14,7 +14,7 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
 | Autenticação | Auth.js (credenciais, JWT) | Padrão do ecossistema Next |
 | IA | **Google Gemini** (API) | Resumo em linguagem simples; plano gratuito |
 | PDF e QR | `@react-pdf/renderer`, `qrcode` | PDF gerado no servidor |
-| Dados de referência | Recorte GeoJSON de **MapBiomas Alerta / PRODES** | Bases públicas oficiais de desmatamento |
+| Dados de referência | Recorte GeoJSON do **PRODES Cerrado** (INPE); MapBiomas Alerta como alternativa | Bases públicas oficiais de desmatamento |
 | Qualidade | ESLint, Vitest, Playwright, GitHub Actions | Lint + testes no CI |
 | Hospedagem | Vercel | Plano gratuito, HTTPS automático |
 
@@ -25,7 +25,11 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
   extensões. *Evolução:* migrar para PostGIS se a base crescer.
 - **ADR-02 — Monólito Next.js.** Duas pessoas e 4 semanas: um único deploy reduz complexidade.
 - **ADR-03 — Base de alertas estática e versionada.** Importada por script (RF19); cada análise
-  registra a versão (RNF11). Elimina dependência de APIs externas instáveis.
+  registra a versão (RNF11). Elimina dependência de APIs externas instáveis. A primeira base é o
+  PRODES Cerrado (INPE) recortado para Luís Eduardo Magalhães e São Desidério (BA), porque o download
+  do MapBiomas Alerta estava fora do ar. O PRODES é anual (agosto a julho): a data de detecção é a
+  `image_date`, e o PRODES 2021 conta como posterior ao corte, mesmo incluindo agosto a dezembro de
+  2020 (opção conservadora; ver README).
 - **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10).
 - **ADR-05 — Supabase como PostgreSQL gerenciado.** Substitui o Neon (decisão da PO, 04/11/2026).
   Usado só como banco Postgres via Prisma: a aplicação conecta pelo *pooler* (`DATABASE_URL`,

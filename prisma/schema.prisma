@@ -92,7 +92,7 @@ model BaseAlertas {
 model Alerta {
   id           String   @id @default(cuid())
   baseId       String
-  /// Identificador do alerta na fonte original (ex.: código MapBiomas)
+  /// Identificador do alerta na fonte original (ex.: uuid do PRODES, código do MapBiomas)
   codigoFonte  String?
   /// GeoJSON Geometry (Polygon ou MultiPolygon)
   geometria    Json

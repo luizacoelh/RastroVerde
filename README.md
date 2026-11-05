@@ -38,23 +38,54 @@ publica o arquivo que o MapLibre 6 procura ao lado do próprio bundle).
 A análise precisa de uma base importada; sem ela todo talhão dá "região sem dados". Cada importação
 é uma **versão** imutável (as análises guardam a versão usada).
 
-1. **Alertas** — [MapBiomas Alerta](https://plataforma.alerta.mapbiomas.org), área de downloads
-   (cadastro gratuito): baixe os alertas do estado (ex.: BA). Recorte para os municípios e converta
-   para GeoJSON em WGS 84, por exemplo com `ogr2ogr` (GDAL) ou no [mapshaper.org](https://mapshaper.org):
+Fonte usada: **PRODES Cerrado** (INPE), desmatamento anual. O download do MapBiomas Alerta
+estava fora do ar (AccessDenied) em 05/11/2026. Os arquivos brutos ficam em `dados/`, que não vai
+para o Git.
+
+1. **Alertas** — no [TerraBrasilis](https://terrabrasilis.dpi.inpe.br/downloads/), baixe
+   *Cerrado → Yearly deforestation* (shapefile, SIRGAS 2000, ~800 MB zipado) e descompacte em
+   `dados/prodes/`. Campos usados: `image_date` (data da imagem em que o desmatamento foi
+   mapeado), `year` (ano PRODES), `uuid` (identificador) e `main_class` (todas as feições do
+   recorte são `DESMATAMENTO`).
+2. **Cobertura** — limites dos municípios na API de malhas do IBGE (Luís Eduardo Magalhães/BA =
+   2919553, São Desidério/BA = 2928901). Eles recortam os alertas e viram a área de cobertura da base:
    ```bash
-   ogr2ogr -f GeoJSON -t_srs EPSG:4326 -clipsrc municipios.geojson alertas.geojson alertas_ba.shp
+   mkdir -p dados/ibge
+   for c in 2919553 2928901; do
+     curl -fo dados/ibge/$c.geojson "https://servicodados.ibge.gov.br/api/v3/malhas/municipios/$c?formato=application/vnd.geo+json&qualidade=maxima"
+   done
    ```
-   O script lê a data em `DATADETEC` e o código em `CODEALERTA`; se o arquivo usar outros nomes,
-   passe `--campo-data` e `--campo-codigo`.
-2. **Cobertura** — limites dos municípios do recorte, pela API de malhas do IBGE
-   (ex.: Luís Eduardo Magalhães/BA = 2919553, São Desidério/BA = 2928901):
-   `https://servicodados.ibge.gov.br/api/v3/malhas/municipios/2919553?formato=application/vnd.geo+json&qualidade=maxima`
-3. Importe (use `--simular` antes para só validar):
+3. **Recorte** — o shapefile tem 2,4 milhões de polígonos. Primeiro um pré-filtro em streaming
+   pelo retângulo dos municípios (~6 min), depois o recorte exato com o mapshaper. O `-clean`
+   repara geometrias, e o importador também repara as que ainda tiverem auto-interseção, em vez
+   de descartar alertas:
    ```bash
-   npm run alertas:importar -- --arquivo alertas.geojson \
-     --cobertura lem.geojson --cobertura sao-desiderio.geojson \
-     --fonte "MapBiomas Alerta" --versao 2026-11
+   node scripts/prefiltrar-shapefile.mjs dados/prodes/yearly_deforestation_biome_cerrado_v20261016.shp \
+     dados/prodes-candidatos.geojson dados/ibge/2919553.geojson dados/ibge/2928901.geojson
+   npx mapshaper -i dados/ibge/2919553.geojson dados/ibge/2928901.geojson combine-files -merge-layers \
+     -o dados/cobertura-lem-sao-desiderio.geojson
+   npx mapshaper -i dados/prodes-candidatos.geojson -clip dados/cobertura-lem-sao-desiderio.geojson \
+     -clean allow-overlaps -filter-fields uuid,image_date,year,class_name,area_km \
+     -o dados/prodes-cerrado-lem-sao-desiderio.geojson precision=0.0000001
    ```
+   SIRGAS 2000 e WGS 84 coincidem na prática (diferença de centímetros), então não há reprojeção.
+4. **Importação** — use `--simular` antes para só validar. A versão é a data de publicação do arquivo:
+   ```bash
+   npm run alertas:importar -- --arquivo dados/prodes-cerrado-lem-sao-desiderio.geojson \
+     --cobertura dados/ibge/2919553.geojson --cobertura dados/ibge/2928901.geojson \
+     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid
+   ```
+
+**Data de corte com o PRODES.** O ano PRODES Y cobre o desmatamento entre as imagens de meados
+de Y−1 e as de meados de Y (aproximadamente agosto a julho). No recorte, as imagens do ano Y são
+sempre de junho a dezembro de Y, então `image_date > 31/12/2020` equivale a `year ≥ 2021`. O
+PRODES 2021 inclui desmatamento feito entre ~agosto e dezembro de 2020, antes do corte. Mesmo
+assim ele **conta**, porque o arquivo não diz em que mês o corte ocorreu. É a opção conservadora:
+pode gerar falso alarme, mas não esconde desmatamento de 2021. O PRODES 2020 e anteriores
+(imagens até agosto de 2020) não contam.
+
+O importador lê por padrão os campos `DATADETEC`/`CODEALERTA` (formato do MapBiomas Alerta);
+para outras fontes, passe `--campo-data` e `--campo-codigo`.
 
 Para desenvolvimento há uma base **fictícia** em `e2e/fixtures/` (a mesma do E2E). Não a importe
 no banco de produção: ela cobre uma região real e geraria resultados falsos.
