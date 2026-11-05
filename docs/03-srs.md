@@ -91,7 +91,7 @@ redigir o resumo do dossiê.
 | RNF10 | Confiabilidade | Falha da IA não impede a geração do dossiê (RF16). |
 | RNF11 | Rastreabilidade | Toda análise guarda a versão da base de alertas usada. |
 | RNF12 | Manutenibilidade | TypeScript estrito, lint no CI, cobertura de testes ≥ 70% no módulo de análise geoespacial. |
-| RNF13 | Portabilidade | Implantação em Vercel + PostgreSQL gerenciado (Neon), sem servidor próprio. |
+| RNF13 | Portabilidade | Implantação em Vercel + PostgreSQL gerenciado (Supabase), sem servidor próprio. |
 | RNF14 | Legal | O dossiê informa que não substitui a declaração de diligência oficial. |
 
 ## 5. Regras de negócio
@@ -101,7 +101,7 @@ redigir o resumo do dossiê.
 | RN01 | Data de corte EUDR: 31/12/2020. Só contam alertas com data de detecção posterior. |
 | RN02 | Um dossiê só pode ser gerado a partir de uma análise concluída. |
 | RN03 | Editar o polígono de um talhão invalida as análises anteriores para novos dossiês (o histórico é mantido). |
-| RN04 | Dossiês emitidos são imutáveis; o hash garante que o conteúdo não foi alterado. |
+| RN04 | Dossiês emitidos são imutáveis; o hash garante que o conteúdo não foi alterado. Um talhão com dossiê emitido não pode ser excluído. |
 
 ## 6. Casos de uso principais
 

@@ -106,7 +106,7 @@ Itens fora do escopo atual, mas previstos no roadmap do produto:
 
 - Os dados de desmatamento usados no MVP são uma amostra pública e **o dossiê não substitui
   a declaração oficial** — o PDF traz esse aviso.
-- Equipe de 2 pessoas, ~4 semanas, ferramentas gratuitas (Vercel, Neon, Gemini free tier).
+- Equipe de 2 pessoas, ~4 semanas, ferramentas gratuitas (Vercel, Supabase, Gemini free tier).
 - Conformidade com a **LGPD**: coleta mínima de dados pessoais.
 
 ## 8. Riscos principais

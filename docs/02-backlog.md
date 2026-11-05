@@ -42,6 +42,10 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 - Dado o mapa aberto, quando desenho um polígono fechado e salvo, então ele fica vinculado à propriedade e a área em hectares é exibida.
 - Polígonos que se cruzam (auto-interseção) são recusados com mensagem clara.
 
+**US06 — Ver, editar e excluir talhões**
+- Talhão com dossiê emitido não pode ser excluído; o sistema explica o motivo (RN04).
+  *Implementado na Sprint 3, junto com o dossiê (US10).*
+
 **US07 — Solicitar análise**
 - O sistema calcula a área de interseção entre o talhão e os alertas com data de detecção > 31/12/2020.
 - O resultado é salvo com data/hora, versão da base de dados e área sobreposta (ha e %).
@@ -55,6 +59,12 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 
 **US12 — Verificação pública**
 - URL `/verificar/{codigo}` sem login mostra: válido/inválido, data, risco e hash do dossiê.
+
+## Pós-MVP (registrado, fora das sprints)
+
+| Item | Origem | Observação |
+|---|---|---|
+| Limite de tentativas de login (rate limiting) | Revisão da Sprint 1 | Mitiga força bruta de senha; hoje o login usa só bcrypt e mensagem genérica. |
 
 ## Definição de Pronto (DoD)
 

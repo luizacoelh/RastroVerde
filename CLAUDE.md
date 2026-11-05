@@ -10,12 +10,12 @@ Documentação em `docs/` (visão, backlog, SRS, arquitetura, protótipo, plano)
 
 ## Stack
 Next.js 16 (App Router; ler `node_modules/next/dist/docs/` antes de usar API nova), TypeScript estrito, Tailwind,
-MapLibre GL + Terra Draw, Turf.js, PostgreSQL (Neon) + Prisma, Auth.js, Gemini (opcional, com fallback), Vercel.
+MapLibre GL + Terra Draw, Turf.js, PostgreSQL (Supabase) + Prisma, Auth.js, Gemini (opcional, com fallback), Vercel.
 
 ## Regras
 - Git: nunca commitar na `main`; branches `feat/*`, `fix/*`, `docs/*`; Conventional Commits; PR com revisão.
 - Commits sem linhas de coautoria/atribuição a IA.
-- Nunca commitar `.env*` nem segredos. Chaves só no servidor.
+- Nunca commitar `.env*` (exceto o modelo `.env.example`, só com placeholders) nem segredos. Chaves só no servidor.
 - Todo acesso a dados verifica o dono (RF20).
 - Antes de dar algo como pronto: `npm run lint`, `npm test`, `npm run build`.
 - Mudança relevante atualiza o doc correspondente em `docs/`.

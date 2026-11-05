@@ -10,7 +10,7 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
 | UI | Tailwind CSS | Rapidez para montar telas |
 | Mapa | **MapLibre GL JS** + **Terra Draw** | Mapas vetoriais open source; desenho de polígonos |
 | Análise geoespacial | **Turf.js** | Interseção e área de polígonos em TypeScript, sem servidor GIS |
-| Banco de dados | **PostgreSQL (Neon)** + Prisma ORM | Gratuito, serverless; geometria guardada como GeoJSON (JSONB) + bbox indexado |
+| Banco de dados | **PostgreSQL (Supabase)** + Prisma ORM | Plano gratuito, Postgres gerenciado com pooler; geometria guardada como GeoJSON (JSONB) + bbox indexado |
 | Autenticação | Auth.js (credenciais, JWT) | Padrão do ecossistema Next |
 | IA | **Google Gemini** (API) | Resumo em linguagem simples; plano gratuito |
 | PDF e QR | `@react-pdf/renderer`, `qrcode` | PDF gerado no servidor |
@@ -27,6 +27,16 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
 - **ADR-03 — Base de alertas estática e versionada.** Importada por script (RF19); cada análise
   registra a versão (RNF11). Elimina dependência de APIs externas instáveis.
 - **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10).
+- **ADR-05 — Supabase como PostgreSQL gerenciado.** Substitui o Neon (decisão da PO, 04/11/2026).
+  Usado só como banco Postgres via Prisma: a aplicação conecta pelo *pooler* (`DATABASE_URL`,
+  modo *transaction*, porta 6543) e as migrações usam o pooler em modo *session* (`DIRECT_URL`,
+  porta 5432; a conexão direta do plano gratuito é só IPv6). Autenticação
+  continua no Auth.js; Supabase Auth, Storage e o SDK `supabase-js` não são usados no MVP.
+  Como o schema `public` é exposto pela Data API do Supabase, a migração inicial ativa RLS sem
+  políticas em todas as tabelas (nega o acesso pela API; o Prisma conecta como dono e não é afetado).
+- **ADR-06 — Next.js sem Cache Components.** O `create-next-app` 16 liga `cacheComponents`; no MVP
+  ele fica desligado porque todas as telas dependem da sessão do usuário. Usamos renderização
+  dinâmica e a checagem otimista de sessão no `src/proxy.ts` (antigo middleware).
 
 ## 4.2 Diagrama de contexto
 
@@ -67,7 +77,7 @@ flowchart LR
     REPO[Prisma ORM]
   end
 
-  DB[(PostgreSQL - Neon)]
+  DB[(PostgreSQL - Supabase)]
   SCRIPT[Script de importação<br/>de alertas - CLI]
   GEM[(Gemini API)]
 
@@ -96,7 +106,7 @@ flowchart TB
     EDGE[CDN / HTTPS]
     FN[Funções Serverless Node.js<br/>Next.js 16]
   end
-  subgraph "Neon (sa-east-1)"
+  subgraph "Supabase (sa-east-1)"
     PG[(PostgreSQL 16)]
   end
   subgraph Google Cloud
@@ -148,14 +158,21 @@ erDiagram
     string nome
     json geometria
     float areaHa
-    json bbox
+    float bboxMinLng
+    float bboxMinLat
+    float bboxMaxLng
+    float bboxMaxLat
   }
   ALERTA {
     string id PK
     string baseId FK
+    string codigoFonte
     json geometria
     date dataDeteccao
-    json bbox
+    float bboxMinLng
+    float bboxMinLat
+    float bboxMaxLng
+    float bboxMaxLat
   }
   BASE_ALERTAS {
     string id PK
@@ -171,6 +188,7 @@ erDiagram
     float percentual
     string risco
     json sobreposicao
+    boolean obsoleta
     datetime criadaEm
   }
   DOSSIE {
@@ -182,6 +200,13 @@ erDiagram
     datetime emitidoEm
   }
 ```
+
+Notas de implementação (`prisma/schema.prisma`):
+- O retângulo envolvente (bbox) fica em 4 colunas numéricas indexadas, para o filtro prévio
+  da análise ser uma consulta simples (ADR-01).
+- `ANALISE.obsoleta` implementa a RN03: editar o polígono marca as análises anteriores como
+  obsoletas (o histórico é mantido).
+- `PROPRIEDADE` também guarda `criadoEm`/`alteradoEm`; `USUARIO`, `criadoEm`.
 
 ## 4.6 Sequência — análise e dossiê
 
@@ -222,4 +247,4 @@ sequenceDiagram
 | RF14–RF17, RNF10 | Serviço de Dossiê + Cliente Gemini com fallback |
 | RF18, RNF06 | Rota pública `/verificar` (só dados não pessoais) |
 | RF19 | Script de importação |
-| RNF05, RNF13 | Vercel (HTTPS) + Neon |
+| RNF05, RNF13 | Vercel (HTTPS) + Supabase |
