@@ -6,6 +6,7 @@ import { featureCollection } from "@turf/helpers";
 import { intersect } from "@turf/intersect";
 import { union } from "@turf/union";
 import type { Feature, FeatureCollection } from "geojson";
+import type { Risco } from "@/lib/risco";
 import { calcularAreaHa, type GeometriaTalhao } from "./talhao";
 
 /** RN01 — data de corte do EUDR. Só contam alertas detectados depois dela. */
@@ -24,13 +25,7 @@ export const AREA_MINIMA_SOBREPOSICAO_HA = 0.0001;
 /** Parte do talhão que pode ficar fora da cobertura por arredondamento das bordas (0,1%). */
 const TOLERANCIA_COBERTURA = 0.001;
 
-export type Risco = "BAIXO" | "ATENCAO" | "ALTO";
-
-export const ROTULO_RISCO: Record<Risco, string> = {
-  BAIXO: "Baixo",
-  ATENCAO: "Atenção",
-  ALTO: "Alto",
-};
+export type { Risco } from "@/lib/risco";
 
 export type AlertaParaAnalise = {
   codigo: string | null;

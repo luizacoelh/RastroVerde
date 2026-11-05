@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { BotaoExcluir } from "@/components/botao-excluir";
-import { Trilha } from "@/components/ui";
+import { LinkBotao, Trilha } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
 import { listarTalhoes, obterPropriedade, obterTalhao } from "@/lib/dados/propriedades";
 import { colecaoDeTalhoes } from "@/lib/geo/colecao";
@@ -27,7 +27,12 @@ export default async function PaginaTalhao({ params }: PageProps<"/propriedades/
       />
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t.nome}</h1>
-        <BotaoExcluir acao={excluirTalhao.bind(null, p.id, t.id)} confirmacao="Excluir este talhão?" />
+        <div className="flex flex-wrap gap-2">
+          <LinkBotao variante="secundario" href={`/propriedades/${p.id}/talhoes/${t.id}/analise`}>
+            Ver análise
+          </LinkBotao>
+          <BotaoExcluir acao={excluirTalhao.bind(null, p.id, t.id)} confirmacao="Excluir este talhão?" />
+        </div>
       </div>
       <FormTalhao
         acao={salvarTalhao.bind(null, p.id, t.id)}
