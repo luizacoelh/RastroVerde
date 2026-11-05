@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Talhão fictício fora da cobertura"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -44,
+              -12.1
+            ],
+            [
+              -43.99,
+              -12.1
+            ],
+            [
+              -43.99,
+              -12.09
+            ],
+            [
+              -44,
+              -12.09
+            ],
+            [
+              -44,
+              -12.1
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

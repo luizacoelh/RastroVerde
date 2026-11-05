@@ -179,6 +179,11 @@ erDiagram
     string fonte
     string versao
     datetime importadaEm
+    json cobertura
+    float bboxMinLng
+    float bboxMinLat
+    float bboxMaxLng
+    float bboxMaxLat
   }
   ANALISE {
     string id PK
@@ -207,6 +212,14 @@ Notas de implementação (`prisma/schema.prisma`):
 - `ANALISE.obsoleta` implementa a RN03: editar o polígono marca as análises anteriores como
   obsoletas (o histórico é mantido).
 - `PROPRIEDADE` também guarda `criadoEm`/`alteradoEm`; `USUARIO`, `criadoEm`.
+- `BASE_ALERTAS.cobertura` é a área do recorte (limites dos municípios). Talhão fora dela →
+  "região sem dados" (UC4). A análise usa a base mais recente que cobre o talhão.
+- `ANALISE.sobreposicao` guarda um FeatureCollection com a interseção de cada alerta (código, data
+  de detecção, área); a área total é a da união delas, para não contar alertas sobrepostos duas vezes.
+
+Fluxo da importação (US13): `scripts/importar-alertas.ts` → `src/lib/alertas/importacao.ts`
+(validação) → banco. Fluxo da análise: `src/lib/dados/analises.ts` (bases e alertas com bbox que
+cruza o do talhão) → `src/lib/geo/analise.ts` (Turf.js, código puro e testado) → `ANALISE`.
 
 ## 4.6 Sequência — análise e dossiê
 

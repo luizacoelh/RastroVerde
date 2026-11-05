@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Município fictício (teste)",
+        "aviso": "DADOS FICTÍCIOS para testes — não representam alertas reais."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -46,
+              -12.3
+            ],
+            [
+              -45.6,
+              -12.3
+            ],
+            [
+              -45.6,
+              -11.9
+            ],
+            [
+              -46,
+              -11.9
+            ],
+            [
+              -46,
+              -12.3
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

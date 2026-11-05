@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { ROTULO_RISCO, type Risco } from "@/lib/risco";
 
 export const classeBotao = {
   confirmarExclusao:
@@ -140,6 +141,24 @@ export function Logo() {
         />
       </svg>
       RastroVerde
+    </span>
+  );
+}
+
+const ESTILO_RISCO: Record<Risco, { classe: string; simbolo: string }> = {
+  BAIXO: { classe: "border-green-700 bg-green-50 text-green-900", simbolo: "✓" },
+  ATENCAO: { classe: "border-amber-600 bg-amber-50 text-amber-900", simbolo: "!" },
+  ALTO: { classe: "border-red-700 bg-red-50 text-red-900", simbolo: "✕" },
+};
+
+/** Selo de risco com cor, símbolo e texto (RNF09). */
+export function SeloRisco({ risco, tamanho = "normal" }: { risco: Risco; tamanho?: "normal" | "grande" }) {
+  const { classe, simbolo } = ESTILO_RISCO[risco];
+  const medida = tamanho === "grande" ? "px-3 py-1 text-base" : "px-2 py-0.5 text-xs";
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border font-semibold ${classe} ${medida}`}>
+      <span aria-hidden="true">{simbolo}</span>
+      Risco {ROTULO_RISCO[risco].toLowerCase()}
     </span>
   );
 }

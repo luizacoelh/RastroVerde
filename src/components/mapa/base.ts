@@ -29,9 +29,7 @@ export const TEXTOS_MAPA = {
   "GeolocateControl.LocationNotAvailable": "Localização indisponível",
 };
 
-export const COR_TALHAO = "#15803d";
-export const COR_CONTORNO = "#14532d";
-export const COR_OUTROS = "#57534e";
+export * from "./cores";
 
 type ModuloMapLibre = typeof import("maplibre-gl");
 
@@ -85,15 +83,32 @@ export function enquadrar(mapa: MapaLibre, colecao: FeatureCollection) {
   );
 }
 
-/** Camadas somente leitura (preenchimento + contorno) para uma coleção de talhões. */
+export type EstiloCamada = {
+  /** Cor do contorno (padrão: a mesma do preenchimento). */
+  contorno?: string;
+  larguraContorno?: number;
+  tracejado?: boolean;
+};
+
+/** Camadas somente leitura (preenchimento + contorno) para uma coleção de polígonos. */
 export function adicionarCamadaTalhoes(
   mapa: MapaLibre,
   id: string,
   colecao: FeatureCollection,
   cor: string,
   opacidade = 0.25,
+  estilo: EstiloCamada = {},
 ) {
   mapa.addSource(id, { type: "geojson", data: colecao });
   mapa.addLayer({ id: `${id}-fill`, type: "fill", source: id, paint: { "fill-color": cor, "fill-opacity": opacidade } });
-  mapa.addLayer({ id: `${id}-line`, type: "line", source: id, paint: { "line-color": cor, "line-width": 2 } });
+  mapa.addLayer({
+    id: `${id}-line`,
+    type: "line",
+    source: id,
+    paint: {
+      "line-color": estilo.contorno ?? cor,
+      "line-width": estilo.larguraContorno ?? 2,
+      ...(estilo.tracejado ? { "line-dasharray": [2, 1.5] } : {}),
+    },
+  });
 }

@@ -1,0 +1,110 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "CODEALERTA": "TESTE-001",
+        "DATADETEC": "2023-05-10",
+        "aviso": "DADOS FICTÍCIOS para testes — não representam alertas reais."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -45.7905,
+              -12.0905
+            ],
+            [
+              -45.789,
+              -12.0905
+            ],
+            [
+              -45.789,
+              -12.089
+            ],
+            [
+              -45.7905,
+              -12.089
+            ],
+            [
+              -45.7905,
+              -12.0905
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODEALERTA": "TESTE-002",
+        "DATADETEC": "2019-08-01",
+        "aviso": "DADOS FICTÍCIOS para testes — não representam alertas reais."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -45.8,
+              -12.1
+            ],
+            [
+              -45.795,
+              -12.1
+            ],
+            [
+              -45.795,
+              -12.09
+            ],
+            [
+              -45.8,
+              -12.09
+            ],
+            [
+              -45.8,
+              -12.1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODEALERTA": "TESTE-003",
+        "DATADETEC": "2022-03-15",
+        "aviso": "DADOS FICTÍCIOS para testes — não representam alertas reais."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -45.7,
+              -12.1
+            ],
+            [
+              -45.69,
+              -12.1
+            ],
+            [
+              -45.69,
+              -12.09
+            ],
+            [
+              -45.7,
+              -12.09
+            ],
+            [
+              -45.7,
+              -12.1
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

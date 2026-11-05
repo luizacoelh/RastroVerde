@@ -1,14 +1,17 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Testes E2E (docs/06-plano-projeto.md). Precisam de um banco com as migrações aplicadas:
-// use DATABASE_URL apontando para um Postgres de teste, nunca o de produção.
+// Testes E2E (docs/06-plano-projeto.md). Precisam de um Postgres LOCAL de teste com as
+// migrações aplicadas (DATABASE_URL); o setup global recusa bancos remotos.
 const PORTA = Number(process.env.E2E_PORTA ?? 3100);
 
 export default defineConfig({
   testDir: "e2e",
+  // Importa a base de alertas fictícia (só em banco local).
+  globalSetup: "./e2e/preparar-banco.ts",
   timeout: 90_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,
+  workers: 1,
   retries: 0,
   reporter: [["list"]],
   use: {
