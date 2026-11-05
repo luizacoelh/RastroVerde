@@ -46,13 +46,23 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 - Talhão com dossiê emitido não pode ser excluído; o sistema explica o motivo (RN04).
   *Implementado na Sprint 3, junto com o dossiê (US10).*
 
+**US05 — Importar talhão GeoJSON** (Should)
+- Aceita arquivo `.geojson`/`.json` de até 1 MB com **um** Polygon ou MultiPolygon em WGS 84;
+  o polígono passa pelas mesmas validações do desenho e aparece no mapa antes de salvar.
+- Arquivo com vários polígonos, sem polígono ou em outro sistema de coordenadas é recusado com mensagem clara.
+
 **US07 — Solicitar análise**
 - O sistema calcula a área de interseção entre o talhão e os alertas com data de detecção > 31/12/2020.
 - O resultado é salvo com data/hora, versão da base de dados e área sobreposta (ha e %).
 
 **US08 — Ver risco**
-- Sem sobreposição → **Baixo**; sobreposição < 1% da área ou < 0,5 ha → **Atenção**; acima disso → **Alto**.
+- Sem sobreposição → **Baixo**; sobreposição < 1% da área **e** < 0,5 ha → **Atenção**; demais casos → **Alto** (RF10).
+  *Corrigido na Sprint 2: o critério dizia "ou", em conflito com o RF10, que vale.*
 - A área sobreposta aparece destacada em vermelho no mapa.
+
+**US13 — Importar base de alertas** (Should)
+- `npm run alertas:importar` grava a base com fonte, versão e área de cobertura; cada fonte/versão
+  é importada uma única vez. Feições inválidas são descartadas e listadas com o motivo.
 
 **US10 — Gerar dossiê**
 - PDF contém: dados da propriedade, mapa do talhão, coordenadas, resultado, fonte dos dados, data, código único, QR code e aviso legal.

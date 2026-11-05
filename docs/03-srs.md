@@ -126,6 +126,9 @@ flowchart LR
 3. Sistema calcula a interseção exata e soma a área (RF09).
 4. Sistema classifica o risco (RF10), salva a análise (RF11) e exibe o mapa (RF12).
 - **Exceção:** base de alertas não cobre a região → aviso "região sem dados" e risco não calculado.
+  Cada base guarda a área de cobertura do recorte (ex.: limites dos municípios); usa-se a base mais
+  recente que cobre o talhão inteiro (tolerância de 0,1% da área para arredondamento de bordas).
+- Sobreposições menores que 1 m² são tratadas como ruído numérico (alerta que só encosta na borda).
 
 ## 7. Matriz de rastreabilidade (resumo)
 
