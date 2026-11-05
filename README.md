@@ -23,10 +23,28 @@ npm run dev                # http://localhost:3000
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Tipos de rota do Next + `tsc` |
 | `npm test` / `npm run test:coverage` | Vitest (cobertura mínima de 70% em `src/lib/geo`) |
+| `npm run test:e2e` | Playwright: cadastro → propriedade → desenho de um talhão de ~5 ha no mapa |
 | `npm run build` | Build de produção |
 | `npm run db:migrate` | Cria uma nova migração a partir do `prisma/schema.prisma` (desenvolvimento) |
 
 O CI (`.github/workflows/ci.yml`) roda lint, typecheck, testes e build em todo PR.
+
+`npm run dev` e `npm run build` copiam o worker do MapLibre para `public/maplibre/` (o Turbopack não
+publica o arquivo que o MapLibre 6 procura ao lado do próprio bundle).
+
+### Testes E2E
+
+Precisam de um banco **de teste** com as migrações aplicadas (nunca o de produção). Exemplo local:
+
+```bash
+npx playwright install chromium     # uma vez
+npx prisma dev -d -n rastroverde-e2e   # Postgres local; copie a URL TCP exibida
+DATABASE_URL="<url>" DIRECT_URL="<url>" npm run db:deploy
+DATABASE_URL="<url>" npm run test:e2e
+```
+
+O Playwright sobe um `next dev` próprio na porta 3100 (pasta `.next-e2e`), então funciona mesmo
+com o seu `npm run dev` aberto.
 
 ## Equipe
 

@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-e2e/
 /out/
 
 # production
@@ -47,3 +48,7 @@ next-env.d.ts
 
 # worker do MapLibre (copiado de node_modules)
 /public/maplibre/
+
+# playwright
+/test-results/
+/playwright-report/
