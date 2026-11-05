@@ -33,8 +33,33 @@ export const COR_TALHAO = "#15803d";
 export const COR_CONTORNO = "#14532d";
 export const COR_OUTROS = "#57534e";
 
-export async function criarMapa(container: HTMLElement) {
-  const { Map, NavigationControl, GeolocateControl, ScaleControl } = await import("maplibre-gl");
+type ModuloMapLibre = typeof import("maplibre-gl");
+
+/**
+ * Caminho do worker do MapLibre, copiado de node_modules para public/ por
+ * scripts/copiar-worker-maplibre.mjs. O MapLibre 6 procura o worker ao lado do próprio
+ * arquivo (import.meta.url), que não existe no bundle do Turbopack ("Worker failed to load").
+ */
+export const URL_WORKER_MAPLIBRE = "/maplibre/maplibre-gl-worker.mjs";
+
+let moduloMapLibre: Promise<ModuloMapLibre> | undefined;
+
+/** Importa o MapLibre (só no navegador) e aponta o worker para o arquivo servido em public/. */
+export function carregarMapLibre(): Promise<ModuloMapLibre> {
+  moduloMapLibre ??= import("maplibre-gl").then((m) => {
+    m.setWorkerUrl(`${URL_WORKER_MAPLIBRE}?v=${m.getVersion()}`);
+    return m;
+  });
+  return moduloMapLibre;
+}
+
+/**
+ * Cria o mapa de forma síncrona. Quem chama deve checar se o efeito foi cancelado
+ * depois de `await carregarMapLibre()` e antes de chamar esta função; senão, no Strict
+ * Mode, dois mapas disputam o mesmo container.
+ */
+export function criarMapa(maplibre: ModuloMapLibre, container: HTMLElement) {
+  const { Map, NavigationControl, GeolocateControl, ScaleControl } = maplibre;
   const mapa = new Map({
     container,
     style: ESTILO_OSM,

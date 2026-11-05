@@ -44,3 +44,6 @@ next-env.d.ts
 
 # prisma client gerado
 /src/generated/
+
+# worker do MapLibre (copiado de node_modules)
+/public/maplibre/

@@ -5,13 +5,26 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapaLibre } from "maplibre-gl";
-import type { TerraDraw } from "terra-draw";
+import type { TerraDraw, TerraDrawPolygonMode } from "terra-draw";
 import type { FeatureCollection, Polygon } from "geojson";
-import type { GeometriaTalhao } from "@/lib/geo/talhao";
+import { calcularAreaHa, formatarHa, type GeometriaTalhao } from "@/lib/geo/talhao";
 import { classeBotao } from "@/components/ui";
-import { COR_CONTORNO, COR_OUTROS, COR_TALHAO, adicionarCamadaTalhoes, criarMapa, enquadrar } from "./base";
+import {
+  COR_CONTORNO,
+  COR_OUTROS,
+  COR_TALHAO,
+  adicionarCamadaTalhoes,
+  carregarMapLibre,
+  criarMapa,
+  enquadrar,
+} from "./base";
 
 type Modo = "carregando" | "desenhando" | "editando";
+
+/** Estado do polígono que está sendo desenhado (antes de fechar). */
+type Rascunho = { pontos: number; areaHa: number | null };
+
+const SEM_RASCUNHO: Rascunho = { pontos: 0, areaHa: null };
 
 export type PropsEditorTalhao = {
   /** Geometria salva do talhão (edição). */
@@ -28,11 +41,30 @@ function poligonoAtual(draw: TerraDraw): Polygon | null {
   return feature ? (feature.geometry as Polygon) : null;
 }
 
+/**
+ * Lê o polígono em desenho. O Terra Draw guarda uma LineString até o 3º vértice e depois
+ * um Polygon cujo anel inclui a posição do cursor; a área acompanha o cursor.
+ */
+function lerRascunho(draw: TerraDraw): Rascunho {
+  const feature = draw.getSnapshot().find((f) => f.properties.mode === "polygon" && f.properties.currentlyDrawing);
+  if (!feature) return SEM_RASCUNHO;
+  if (feature.geometry.type === "LineString") {
+    return { pontos: Math.max(feature.geometry.coordinates.length - 1, 0), areaHa: null };
+  }
+  if (feature.geometry.type === "Polygon") {
+    const anel = feature.geometry.coordinates[0] ?? [];
+    return { pontos: Math.max(anel.length - 2, 0), areaHa: calcularAreaHa(feature.geometry as Polygon) };
+  }
+  return SEM_RASCUNHO;
+}
+
 export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
   const container = useRef<HTMLDivElement>(null);
   const drawRef = useRef<TerraDraw | null>(null);
+  const modoPoligonoRef = useRef<TerraDrawPolygonMode | null>(null);
   const onChangeRef = useRef(onChange);
   const [modo, setModo] = useState<Modo>("carregando");
+  const [rascunho, setRascunho] = useState<Rascunho>(SEM_RASCUNHO);
   const [erroMapa, setErroMapa] = useState(false);
 
   useEffect(() => {
@@ -48,22 +80,21 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
     let mapa: MapaLibre | undefined;
 
     (async () => {
-      const [{ TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode }, { TerraDrawMapLibreGLAdapter }] =
-        await Promise.all([import("terra-draw"), import("terra-draw-maplibre-gl-adapter")]);
+      const [maplibre, { TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode }, { TerraDrawMapLibreGLAdapter }] =
+        await Promise.all([carregarMapLibre(), import("terra-draw"), import("terra-draw-maplibre-gl-adapter")]);
+      // Strict Mode monta o efeito duas vezes: o primeiro já foi limpo e não cria mapa.
       if (cancelado || !container.current) return;
 
-      mapa = await criarMapa(container.current);
-      if (cancelado) {
-        mapa.remove();
-        return;
-      }
-      const m = mapa;
+      const m = criarMapa(maplibre, container.current);
+      mapa = m;
       m.on("error", (e) => {
         // Falha ao carregar tiles não impede o desenho; avisa só uma vez.
         if (!cancelado && String(e.error?.message ?? "").includes("tile")) setErroMapa(true);
       });
 
-      m.on("load", () => {
+      // "style.load" e não "load": o "load" espera todos os tiles do fundo, e um tile lento
+      // do OSM deixaria o editor travado em "Carregando mapa…".
+      m.once("style.load", () => {
         if (cancelado) return;
         const inicialGeo = inicialRef.current;
         const outrosGeo = outrosRef.current;
@@ -79,18 +110,32 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
           );
         }
 
+        const modoPoligono = new TerraDrawPolygonMode({
+          // Mostra cada vértice já marcado, não só o primeiro e o último.
+          showCoordinatePoints: true,
+          keyEvents: { cancel: "Escape", finish: "Enter" },
+          styles: {
+            fillColor: COR_TALHAO,
+            fillOpacity: 0.3,
+            outlineColor: COR_CONTORNO,
+            outlineWidth: 3,
+            coordinatePointColor: COR_CONTORNO,
+            coordinatePointWidth: 5,
+            coordinatePointOutlineColor: "#ffffff",
+            coordinatePointOutlineWidth: 2,
+            // Primeiro e último ponto: clicar em um deles fecha o polígono.
+            closingPointColor: "#facc15",
+            closingPointWidth: 7,
+            closingPointOutlineColor: COR_CONTORNO,
+            closingPointOutlineWidth: 2,
+          },
+        });
+        modoPoligonoRef.current = modoPoligono;
+
         const draw = new TerraDraw({
           adapter: new TerraDrawMapLibreGLAdapter({ map: m }),
           modes: [
-            new TerraDrawPolygonMode({
-              styles: {
-                fillColor: COR_TALHAO,
-                fillOpacity: 0.3,
-                outlineColor: COR_CONTORNO,
-                outlineWidth: 2,
-                closingPointColor: COR_CONTORNO,
-              },
-            }),
+            modoPoligono,
             new TerraDrawSelectMode({
               allowManualDeselection: false,
               flags: {
@@ -105,9 +150,13 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
                 selectedPolygonColor: COR_TALHAO,
                 selectedPolygonFillOpacity: 0.3,
                 selectedPolygonOutlineColor: COR_CONTORNO,
-                selectedPolygonOutlineWidth: 2,
+                selectedPolygonOutlineWidth: 3,
                 selectionPointColor: COR_CONTORNO,
+                selectionPointWidth: 6,
+                selectionPointOutlineColor: "#ffffff",
+                selectionPointOutlineWidth: 2,
                 midPointColor: COR_TALHAO,
+                midPointWidth: 4,
               },
             }),
           ],
@@ -117,7 +166,10 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
 
         const emitir = () => onChangeRef.current(poligonoAtual(draw));
 
-        draw.on("change", emitir);
+        draw.on("change", () => {
+          setRascunho(draw.getMode() === "polygon" ? lerRascunho(draw) : SEM_RASCUNHO);
+          emitir();
+        });
         draw.on("finish", (id, contexto) => {
           if (contexto.mode === "polygon" && contexto.action === "draw") {
             // Um talhão = um polígono: remove o anterior e passa para edição de vértices.
@@ -130,6 +182,7 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
             draw.setMode("select");
             draw.selectFeature(id);
             setModo("editando");
+            setRascunho(SEM_RASCUNHO);
           }
           emitir();
         });
@@ -160,6 +213,7 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
       cancelado = true;
       drawRef.current?.stop();
       drawRef.current = null;
+      modoPoligonoRef.current = null;
       mapa?.remove();
     };
   }, []);
@@ -170,19 +224,52 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
     draw.clear();
     draw.setMode("polygon");
     setModo("desenhando");
+    setRascunho(SEM_RASCUNHO);
     onChangeRef.current(null);
+  }
+
+  function desfazerPonto() {
+    modoPoligonoRef.current?.undo();
+    const draw = drawRef.current;
+    if (draw) setRascunho(lerRascunho(draw));
   }
 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-stone-700" aria-live="polite">
-          {modo === "carregando" && "Carregando mapa…"}
-          {modo === "desenhando" &&
-            "Aproxime o mapa até a área e clique para marcar cada vértice. Para fechar, clique no primeiro ponto."}
-          {modo === "editando" &&
-            "Arraste os vértices para ajustar. Clique no ponto do meio de um lado para criar um vértice."}
-        </p>
+        <div className="text-sm text-stone-700" aria-live="polite">
+          {modo === "carregando" && <p>Carregando mapa…</p>}
+          {modo === "desenhando" && (
+            <>
+              <p>
+                Clique para marcar os cantos do talhão. Clique no primeiro ponto ou dê dois cliques para fechar.
+              </p>
+              <p className="text-stone-600">
+                Esc cancela o desenho.
+                {rascunho.pontos > 0 ? ` Pontos marcados: ${rascunho.pontos}.` : ""}
+                {rascunho.areaHa !== null ? (
+                  <>
+                    {" "}
+                    Área: <strong data-testid="area-rascunho">{formatarHa(rascunho.areaHa)}</strong>
+                  </>
+                ) : null}
+              </p>
+            </>
+          )}
+          {modo === "editando" && (
+            <p>Arraste os vértices para ajustar. Clique no ponto do meio de um lado para criar um vértice.</p>
+          )}
+        </div>
+        {modo === "desenhando" ? (
+          <button
+            type="button"
+            onClick={desfazerPonto}
+            className={classeBotao.secundario}
+            disabled={rascunho.pontos === 0}
+          >
+            Desfazer último ponto
+          </button>
+        ) : null}
         {modo === "editando" ? (
           <button type="button" onClick={redesenhar} className={classeBotao.secundario}>
             Redesenhar
