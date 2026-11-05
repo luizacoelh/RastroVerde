@@ -2,7 +2,7 @@
 //
 // Uso:
 //   npm run alertas:importar -- --arquivo alertas.geojson --cobertura municipio1.geojson [--cobertura municipio2.geojson] \
-//     --fonte "MapBiomas Alerta" --versao 2026-11 [--campo-data DATADETEC] [--campo-codigo CODEALERTA]
+//     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid
 //
 // Cada (fonte, versão) é importada uma única vez e não muda depois (RNF11: as análises
 // guardam a versão usada). Para atualizar os dados, importe uma versão nova.
@@ -20,12 +20,13 @@ Obrigatórios:
   --arquivo <caminho>     GeoJSON com os polígonos dos alertas
   --cobertura <caminho>   GeoJSON com a área coberta pelo recorte (ex.: limite do município);
                           repita a opção para vários municípios
-  --fonte <texto>         Ex.: "MapBiomas Alerta"
+  --fonte <texto>         Ex.: "PRODES Cerrado (INPE)"
   --versao <texto>        Ex.: 2026-11
 
 Opcionais:
-  --campo-data <nome>     Propriedade com a data de detecção (padrão: DATADETEC)
-  --campo-codigo <nome>   Propriedade com o código do alerta (padrão: CODEALERTA)
+  --campo-data <nome>     Propriedade com a data de detecção (padrão: DATADETEC, do MapBiomas;
+                          PRODES: image_date)
+  --campo-codigo <nome>   Propriedade com o código do alerta (padrão: CODEALERTA; PRODES: uuid)
   --simular               Só valida e mostra o resumo, sem gravar no banco
   --pular-se-existir      Termina sem erro se a fonte/versão já foi importada
 `;
@@ -82,7 +83,7 @@ async function main() {
     campoCodigo: values["campo-codigo"],
   });
   if (typeof preparados === "string") throw new Error(preparados);
-  const { alertas, descartados } = preparados;
+  const { alertas, descartados, reparados } = preparados;
 
   const posCorte = alertas.filter((a) => a.dataDeteccao > DATA_CORTE_EUDR).length;
   const [cMinLng, cMinLat, cMaxLng, cMaxLat] = cobertura.bbox;
@@ -93,6 +94,7 @@ async function main() {
 
   console.log(`Base: ${fonte} ${versao}`);
   console.log(`Alertas válidos: ${alertas.length} (${posCorte} detectados após 31/12/2020)`);
+  if (reparados) console.log(`Reparados (auto-interseção ou anéis que se tocam): ${reparados}`);
   if (descartados.length) {
     console.log(`Descartados: ${descartados.length}`);
     resumirDescartes(descartados);

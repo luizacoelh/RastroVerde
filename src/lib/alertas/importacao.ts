@@ -9,9 +9,9 @@ import { ehPoligonal, listarFeicoes } from "@/lib/geo/geojson";
 import { normalizarGeometriaPoligonal, type Bbox, type GeometriaTalhao } from "@/lib/geo/talhao";
 
 export type OpcoesAlertas = {
-  /** Propriedade com a data de detecção (MapBiomas Alerta: DATADETEC). */
+  /** Propriedade com a data de detecção (MapBiomas Alerta: DATADETEC; PRODES: image_date). */
   campoData: string;
-  /** Propriedade com o código do alerta na fonte (MapBiomas Alerta: CODEALERTA). */
+  /** Propriedade com o código do alerta na fonte (MapBiomas Alerta: CODEALERTA; PRODES: uuid). */
   campoCodigo?: string;
 };
 
@@ -49,25 +49,48 @@ export function lerDataDeteccao(valor: unknown): Date | null {
   return null;
 }
 
-/** Valida e normaliza os alertas de um GeoJSON; feições inválidas são descartadas com motivo. */
+/**
+ * Repara um polígono com auto-interseção ou anéis que se tocam unindo-o consigo mesmo
+ * (o recorte do Turf/polyclip devolve uma geometria válida com a mesma área coberta).
+ * Descartar estes polígonos esconderia desmatamento; reparar é o lado conservador.
+ */
+export function repararGeometria(geometria: GeometriaTalhao): GeometriaTalhao | null {
+  const feature: Feature<GeometriaTalhao> = { type: "Feature", properties: {}, geometry: geometria };
+  try {
+    return union(featureCollection([feature, feature]))?.geometry ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Valida e normaliza os alertas de um GeoJSON. Polígonos com auto-interseção são reparados;
+ * feições sem polígono, coordenadas ou data válidas são descartadas com o motivo.
+ */
 export function prepararAlertas(
   entrada: unknown,
   opcoes: OpcoesAlertas,
-): { alertas: AlertaPreparado[]; descartados: Descarte[] } | string {
+): { alertas: AlertaPreparado[]; descartados: Descarte[]; reparados: number } | string {
   const feicoes = listarFeicoes(entrada);
   if (typeof feicoes === "string") return feicoes;
 
   const alertas: AlertaPreparado[] = [];
   const descartados: Descarte[] = [];
+  let reparados = 0;
 
   feicoes.forEach((feicao, posicao) => {
     const descartar = (motivo: string) => descartados.push({ posicao, motivo });
     if (!ehPoligonal(feicao.geometria)) return descartar("geometria não é Polygon/MultiPolygon");
 
-    const geometria = normalizarGeometriaPoligonal(feicao.geometria);
+    let geometria = normalizarGeometriaPoligonal(feicao.geometria);
     if (typeof geometria === "string") return descartar(geometria);
     const feature: Feature<GeometriaTalhao> = { type: "Feature", properties: {}, geometry: geometria };
-    if (kinks(feature).features.length > 0) return descartar("polígono com auto-interseção");
+    if (kinks(feature).features.length > 0) {
+      const reparada = repararGeometria(geometria);
+      if (!reparada) return descartar("polígono com auto-interseção que não pôde ser reparado");
+      geometria = reparada;
+      reparados++;
+    }
 
     const dataDeteccao = lerDataDeteccao(feicao.propriedades?.[opcoes.campoData]);
     if (!dataDeteccao) return descartar(`data inválida ou ausente no campo "${opcoes.campoData}"`);
@@ -82,7 +105,7 @@ export function prepararAlertas(
     });
   });
 
-  return { alertas, descartados };
+  return { alertas, descartados, reparados };
 }
 
 /**
