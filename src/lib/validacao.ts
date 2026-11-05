@@ -52,7 +52,11 @@ export const esquemaPropriedade = z.object({
 
 export const esquemaTalhao = z.object({
   nome: z.string().trim().min(1, "Informe o nome do talhão.").max(80, "Nome muito longo."),
-  geometria: z.string().min(1, "Desenhe o talhão no mapa."),
+  geometria: z
+    .string()
+    .min(1, "Desenhe o talhão no mapa.")
+    // RF07: arquivo de até 1 MB; a geometria normalizada não passa disso.
+    .max(1_100_000, "Polígono detalhado demais (mais de 1 MB). Simplifique antes de importar."),
 });
 
 /** Estado devolvido pelas Server Actions de formulário (useActionState). */
