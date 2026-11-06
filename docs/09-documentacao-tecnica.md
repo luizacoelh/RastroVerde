@@ -229,6 +229,7 @@ do merge. Resultados: [07-plano-e-relatorio-de-testes.md](07-plano-e-relatorio-d
 - A base cobre só **Luís Eduardo Magalhães e São Desidério (BA)**; fora dela, "região sem dados".
 - O mapa do PDF não tem imagem de satélite nem mapa de fundo.
 - O E2E não roda no CI.
-- Ao editar um talhão, o mapa enquadra todos os talhões da propriedade (defeito 7 do relatório de
+- O município da propriedade é texto livre e não é conferido com a localização do talhão. Um
+  dossiê pode mostrar ao comprador um município diferente do real (defeito 8 do relatório de
   testes, aberto).
 - Sem limite de tentativas de login (registrado como pós-MVP).

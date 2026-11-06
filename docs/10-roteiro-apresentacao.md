@@ -109,8 +109,8 @@ Use só os fatos abaixo; eles saem do GitHub e de [07-plano-e-relatorio-de-teste
 
 - **CI no GitHub Actions** em todo PR e push: lint, typecheck, 132 testes unitários com cobertura
   e build. **14 de 14 execuções com sucesso.**
-- **5 testes E2E** (Playwright) rodados antes de cada merge de sprint, mais o **teste manual em
-  produção** (17 de 17 casos).
+- **6 testes E2E** (Playwright) rodados antes de cada merge, mais o **teste manual em produção**
+  (18 de 18 casos, incluindo a leitura do QR code com o celular).
 - Mostrar a tabela de defeitos do relatório de testes: os testes acharam problemas reais (polígonos
   descartados, IA lenta e exagerada, PDF com rodapé fora da página) e eles foram corrigidos antes
   da entrega.
@@ -123,8 +123,8 @@ Do backlog e da visão do produto ([01-visao.md §6](01-visao.md#evoluções-fut
 - Mais municípios na base e, depois, dados em tempo real (MapBiomas Alerta, INPE).
 - Importar o polígono pelo número do **CAR/SICAR**.
 - Checagens extras: terras indígenas, unidades de conservação, embargos do IBAMA.
-- Melhorias já mapeadas: enquadrar só o talhão ao editar (defeito 7), limite de tentativas de
-  login, E2E no CI.
+- Conferir o município declarado com a localização do talhão (defeito 8, achado no teste em
+  produção), limite de tentativas de login e E2E no CI.
 
 Encerramento: *"O RastroVerde transforma um polígono em uma prova que o comprador europeu confere
 em segundos, pelo celular."*
