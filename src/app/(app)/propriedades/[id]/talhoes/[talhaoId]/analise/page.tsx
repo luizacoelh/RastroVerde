@@ -122,10 +122,12 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
               <span aria-hidden="true" className="inline-block h-3 w-4 border-2 border-green-900 bg-stone-300/50" />
               Talhão
             </span>
-            <span className="flex items-center gap-1.5">
-              <span aria-hidden="true" className="inline-block h-3 w-4 border-2 border-dashed border-red-800 bg-red-600/60" />
-              Sobreposição com alertas após 31/12/2020
-            </span>
+            {sobreposicoes.length > 0 ? (
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true" className="inline-block h-3 w-4 border-2 border-dashed border-red-800 bg-red-600/60" />
+                Sobreposição com alertas após 31/12/2020
+              </span>
+            ) : null}
           </p>
 
           {sobreposicoes.length > 0 ? (
