@@ -32,8 +32,10 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
   modo *transaction*, porta 6543) e as migrações usam o pooler em modo *session* (`DIRECT_URL`,
   porta 5432; a conexão direta do plano gratuito é só IPv6). Autenticação
   continua no Auth.js; Supabase Auth, Storage e o SDK `supabase-js` não são usados no MVP.
-  Como o schema `public` é exposto pela Data API do Supabase, a migração inicial ativa RLS sem
-  políticas em todas as tabelas (nega o acesso pela API; o Prisma conecta como dono e não é afetado).
+  Como o schema `public` é exposto pela Data API do Supabase, as migrações ativam RLS sem
+  políticas em todas as tabelas, inclusive a `_prisma_migrations` do próprio Prisma (nega o acesso
+  pela API; o Prisma conecta como dono e não é afetado). Toda tabela nova deve vir com
+  `ENABLE ROW LEVEL SECURITY` na mesma migração.
 - **ADR-06 — Next.js sem Cache Components.** O `create-next-app` 16 liga `cacheComponents`; no MVP
   ele fica desligado porque todas as telas dependem da sessão do usuário. Usamos renderização
   dinâmica e a checagem otimista de sessão no `src/proxy.ts` (antigo middleware).
