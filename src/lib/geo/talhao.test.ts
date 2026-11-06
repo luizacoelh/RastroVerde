@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Polygon } from "geojson";
-import { calcularAreaHa, formatarHa, validarGeometriaTalhao } from "./talhao";
+import { calcularAreaHa, calcularCentroide, formatarHa, validarGeometriaTalhao } from "./talhao";
 
 // Quadrado de 0,01° × 0,01° perto de Luís Eduardo Magalhães (BA), lat ≈ -12°.
 // Largura ≈ 1,089 km × altura ≈ 1,106 km → ≈ 120 ha.
@@ -188,5 +188,41 @@ describe("formatarHa", () => {
   it("usa vírgula decimal e separador de milhar do pt-BR", () => {
     expect(formatarHa(1234.567)).toBe("1.234,57 ha");
     expect(formatarHa(0.1)).toBe("0,1 ha");
+  });
+});
+
+describe("calcularCentroide (RF15)", () => {
+  const quadrado = (x: number, y: number, l: number) => [
+    [x, y],
+    [x + l, y],
+    [x + l, y + l],
+    [x, y + l],
+    [x, y],
+  ];
+
+  it("centro de um quadrado, nos dois sentidos de giro", () => {
+    const anel = quadrado(-45.8, -12.1, 0.01);
+    for (const a of [anel, [...anel].reverse()]) {
+      const [lng, lat] = calcularCentroide({ type: "Polygon", coordinates: [a] });
+      expect(lng).toBeCloseTo(-45.795, 6);
+      expect(lat).toBeCloseTo(-12.095, 6);
+    }
+  });
+
+  it("buraco descentralizado desloca o centroide para o outro lado", () => {
+    const [lng] = calcularCentroide({
+      type: "Polygon",
+      coordinates: [quadrado(0, 0, 1), quadrado(0.6, 0.4, 0.2)],
+    });
+    expect(lng).toBeLessThan(0.5);
+  });
+
+  it("MultiPolygon pondera pela área", () => {
+    const [lng, lat] = calcularCentroide({
+      type: "MultiPolygon",
+      coordinates: [[quadrado(0, 0, 1)], [quadrado(3, 0, 1)]],
+    });
+    expect(lng).toBeCloseTo(2, 3);
+    expect(lat).toBeCloseTo(0.5, 3);
   });
 });
