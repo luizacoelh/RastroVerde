@@ -1,6 +1,6 @@
 // Fluxo da Sprint 1 no navegador: cadastro → propriedade → desenho do talhão (US01, US03, US04).
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { criarContaEPropriedade, lerHa } from "./auxiliares";
+import { criarContaEPropriedade, importarTalhao, lerHa } from "./auxiliares";
 
 const AREA_ALVO_HA = 5;
 
@@ -121,4 +121,27 @@ test("desenha um talhão de ~5 ha com vértices visíveis, desfazer e Esc", asyn
   await page.screenshot({ path: testInfo.outputPath("propriedade.png"), fullPage: true });
 
   expect(errosConsole.filter((e) => /worker/i.test(e))).toEqual([]);
+});
+
+test("editar talhão enquadra só ele, mesmo com outro talhão longe (defeito 7)", async ({ page }, testInfo) => {
+  test.setTimeout(240_000);
+  const urlPropriedade = await criarContaEPropriedade(page, "Fazenda com talhões distantes");
+  // Os dois arquivos ficam a ~195 km um do outro.
+  for (const [arquivo, nome] of [
+    ["talhao-teste.geojson", "Talhão perto"],
+    ["talhao-fora-cobertura.geojson", "Talhão longe"],
+  ]) {
+    await page.getByRole("link", { name: "+ Desenhar talhão" }).click();
+    await importarTalhao(page, arquivo, nome);
+    await expect(page).toHaveURL(urlPropriedade, { timeout: 60_000 });
+  }
+
+  await page.getByRole("link", { name: "Editar — Talhão perto" }).click();
+  const mapa = page.getByRole("application", { name: "Mapa para desenhar o talhão" });
+  await expect(page.getByText("Arraste os vértices para ajustar.")).toBeVisible({ timeout: 60_000 });
+  await page.waitForTimeout(800);
+  // Talhão de ~1,1 km de lado enquadrado no mapa: escala em metros, não em quilômetros.
+  const metros = (await metrosPorPixel(mapa)) * ((await mapa.boundingBox())!.width);
+  expect(metros).toBeLessThan(5_000);
+  await page.screenshot({ path: testInfo.outputPath("editar-enquadrado.png"), fullPage: true });
 });
