@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BotaoExcluir } from "@/components/botao-excluir";
 import { LinkBotao, Trilha } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
+import { obterCoberturas } from "@/lib/dados/analises";
 import { MOTIVO_BLOQUEIO_TALHAO, contarDossies } from "@/lib/dados/dossies";
 import { listarTalhoes, obterPropriedade, obterTalhao } from "@/lib/dados/propriedades";
 import { colecaoDeTalhoes } from "@/lib/geo/colecao";
@@ -17,6 +18,7 @@ export default async function PaginaTalhao({ params }: PageProps<"/propriedades/
   const t = await obterTalhao(usuario.id, p.id, talhaoId);
   const outros = (await listarTalhoes(usuario.id, p.id)).filter((o) => o.id !== t.id);
   const temDossie = (await contarDossies(usuario.id, p.id, t.id)) > 0;
+  const cobertura = await obterCoberturas();
 
   return (
     <>
@@ -44,6 +46,7 @@ export default async function PaginaTalhao({ params }: PageProps<"/propriedades/
         acao={salvarTalhao.bind(null, p.id, t.id)}
         nomeInicial={t.nome}
         geometriaInicial={t.geometria}
+        cobertura={cobertura}
         outros={colecaoDeTalhoes(outros)}
         voltarPara={`/propriedades/${p.id}`}
       />

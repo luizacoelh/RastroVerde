@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useMemo, useRef, useState, type ChangeEvent } from "react";
 import type { FeatureCollection, Polygon } from "geojson";
-import { EditorTalhao } from "@/components/mapa/editor-talhao";
+import { EditorTalhao, type PropsEditorTalhao } from "@/components/mapa/editor-talhao";
 import { Aviso, Campo, classeBotao } from "@/components/ui";
 import { TAMANHO_MAX_ARQUIVO_TALHAO, lerTalhaoGeoJSON } from "@/lib/geo/geojson";
 import { formatarHa, validarGeometriaTalhao, type GeometriaTalhao } from "@/lib/geo/talhao";
@@ -14,12 +14,14 @@ export function FormTalhao({
   nomeInicial = "",
   geometriaInicial,
   outros,
+  cobertura,
   voltarPara,
 }: {
   acao: (estado: EstadoFormulario, formData: FormData) => Promise<EstadoFormulario>;
   nomeInicial?: string;
   geometriaInicial?: GeometriaTalhao;
   outros: FeatureCollection;
+  cobertura?: PropsEditorTalhao["cobertura"];
   voltarPara: string;
 }) {
   const [estado, enviar, pendente] = useActionState(acao, {});
@@ -100,7 +102,13 @@ export function FormTalhao({
       {importacao.erro ? <Aviso>{importacao.erro}</Aviso> : null}
       {importacao.ok ? <Aviso tipo="info">{importacao.ok}</Aviso> : null}
 
-      <EditorTalhao key={base.versao} inicial={base.geometria} outros={outros} onChange={aoMudarNoMapa} />
+      <EditorTalhao
+        key={base.versao}
+        inicial={base.geometria}
+        outros={outros}
+        cobertura={cobertura}
+        onChange={aoMudarNoMapa}
+      />
 
       <div
         className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-stone-200 bg-white p-4"

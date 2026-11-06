@@ -10,6 +10,7 @@ import type { FeatureCollection, Polygon } from "geojson";
 import { calcularAreaHa, formatarHa, type GeometriaTalhao } from "@/lib/geo/talhao";
 import { classeBotao } from "@/components/ui";
 import {
+  COR_COBERTURA,
   COR_CONTORNO,
   COR_OUTROS,
   COR_TALHAO,
@@ -31,6 +32,8 @@ export type PropsEditorTalhao = {
   inicial?: GeometriaTalhao;
   /** Outros talhões da propriedade, exibidos em cinza como referência. */
   outros: FeatureCollection;
+  /** Área coberta pelas bases de alertas (UC4), em azul tracejado; fora dela não há análise. */
+  cobertura?: { colecao: FeatureCollection; descricoes: string[] };
   onChange: (geometria: Polygon | null) => void;
 };
 
@@ -58,8 +61,9 @@ function lerRascunho(draw: TerraDraw): Rascunho {
   return SEM_RASCUNHO;
 }
 
-export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
+export function EditorTalhao({ inicial, outros, cobertura, onChange }: PropsEditorTalhao) {
   const container = useRef<HTMLDivElement>(null);
+  const mapaRef = useRef<MapaLibre | null>(null);
   const drawRef = useRef<TerraDraw | null>(null);
   const modoPoligonoRef = useRef<TerraDrawPolygonMode | null>(null);
   const onChangeRef = useRef(onChange);
@@ -74,6 +78,7 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
   // O mapa é criado uma vez; `inicial` e `outros` só valem para a montagem.
   const inicialRef = useRef(inicial);
   const outrosRef = useRef(outros);
+  const coberturaRef = useRef(cobertura);
 
   useEffect(() => {
     let cancelado = false;
@@ -87,6 +92,7 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
 
       const m = criarMapa(maplibre, container.current);
       mapa = m;
+      mapaRef.current = m;
       m.on("error", (e) => {
         // Falha ao carregar tiles não impede o desenho; avisa só uma vez.
         if (!cancelado && String(e.error?.message ?? "").includes("tile")) setErroMapa(true);
@@ -99,6 +105,14 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
         const inicialGeo = inicialRef.current;
         const outrosGeo = outrosRef.current;
 
+        // Por baixo de tudo, só como referência: a área onde a análise funciona.
+        const coberturaGeo = coberturaRef.current?.colecao;
+        if (coberturaGeo?.features.length) {
+          adicionarCamadaTalhoes(m, "cobertura", coberturaGeo, COR_COBERTURA, 0.04, {
+            larguraContorno: 2,
+            tracejado: true,
+          });
+        }
         adicionarCamadaTalhoes(m, "outros", outrosGeo, COR_OUTROS, 0.15);
         // MultiPolygon (importado) não é editável no Terra Draw: mostra como referência.
         if (inicialGeo?.type === "MultiPolygon") {
@@ -215,8 +229,14 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
       drawRef.current = null;
       modoPoligonoRef.current = null;
       mapa?.remove();
+      mapaRef.current = null;
     };
   }, []);
+
+  function verAreaCoberta() {
+    const m = mapaRef.current;
+    if (m && cobertura?.colecao.features.length) enquadrar(m, cobertura.colecao);
+  }
 
   function redesenhar() {
     const draw = drawRef.current;
@@ -282,6 +302,19 @@ export function EditorTalhao({ inicial, outros, onChange }: PropsEditorTalhao) {
         role="application"
         aria-label="Mapa para desenhar o talhão"
       />
+      {cobertura?.colecao.features.length ? (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-600">
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden="true" className="inline-block h-3 w-4 border-2 border-dashed border-blue-700 bg-blue-700/5" />
+            Área coberta pela base de alertas
+            {cobertura.descricoes.length ? ` (${cobertura.descricoes.join("; ")})` : ""}. Talhões fora dela ficam sem
+            análise.
+          </span>
+          <button type="button" onClick={verAreaCoberta} className="font-semibold text-green-800 hover:underline">
+            Ver área coberta
+          </button>
+        </div>
+      ) : null}
       {erroMapa ? (
         <p className="text-xs text-amber-800">
           Algumas partes do mapa de fundo não carregaram. Verifique sua conexão.
