@@ -112,7 +112,7 @@ flowchart TB
     EDGE[CDN / HTTPS]
     FN[Funções Serverless Node.js<br/>Next.js 16]
   end
-  subgraph "Supabase (sa-east-1)"
+  subgraph "Supabase (us-west-2 - Oregon)"
     PG[(PostgreSQL 16)]
   end
   subgraph Google Cloud
@@ -131,6 +131,11 @@ flowchart TB
   REPO --> CI
   REPO -- deploy automático --> FN
 ```
+
+O projeto do Supabase foi criado em `us-west-2` (Oregon) e fica lá. Cada consulta das funções em
+São Paulo atravessa o continente (~150 ms de ida e volta). A análise faz poucas consultas por
+talhão e continua bem abaixo do limite do RNF01. Se a latência incomodar, a saída mais simples é
+mover as funções da Vercel para `pdx1` (Oregon), perto do banco.
 
 ## 4.5 Modelo de dados
 
