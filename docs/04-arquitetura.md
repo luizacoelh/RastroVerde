@@ -199,6 +199,7 @@ erDiagram
     string versao
     datetime importadaEm
     json cobertura
+    string descricaoCobertura
     float bboxMinLng
     float bboxMinLat
     float bboxMaxLng
@@ -236,6 +237,9 @@ Notas de implementação (`prisma/schema.prisma`):
 - `PROPRIEDADE` também guarda `criadoEm`/`alteradoEm`; `USUARIO`, `criadoEm`.
 - `BASE_ALERTAS.cobertura` é a área do recorte (limites dos municípios). Talhão fora dela →
   "região sem dados" (UC4). A análise usa a base mais recente que cobre o talhão.
+  `descricaoCobertura` (opcional, ex.: "Luís Eduardo Magalhães e São Desidério (BA)") é só texto
+  para o usuário: aparece na mensagem de região sem dados e na legenda do editor, onde a
+  cobertura é desenhada em azul tracejado. Pode ser corrigida sem criar versão nova da base.
 - `ANALISE.sobreposicao` guarda um FeatureCollection com a interseção de cada alerta (código, data
   de detecção, área); a área total é a da união delas, para não contar alertas sobrepostos duas vezes.
 

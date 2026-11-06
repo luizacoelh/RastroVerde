@@ -73,8 +73,11 @@ para o Git.
    ```bash
    npm run alertas:importar -- --arquivo dados/prodes-cerrado-lem-sao-desiderio.geojson \
      --cobertura dados/ibge/2919553.geojson --cobertura dados/ibge/2928901.geojson \
-     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid
+     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid      --descricao-cobertura "Luís Eduardo Magalhães e São Desidério (BA)"
    ```
+   A `--descricao-cobertura` é o texto que o usuário vê quando o talhão cai fora da base. Para
+   corrigir a descrição de uma base já importada, rode o mesmo comando com `--pular-se-existir`:
+   só a descrição muda, os alertas e a cobertura não.
 
 **Data de corte com o PRODES.** O ano PRODES Y cobre o desmatamento entre as imagens de meados
 de Y−1 e as de meados de Y (aproximadamente agosto a julho). No recorte, as imagens do ano Y são
@@ -83,6 +86,11 @@ PRODES 2021 inclui desmatamento feito entre ~agosto e dezembro de 2020, antes do
 assim ele **conta**, porque o arquivo não diz em que mês o corte ocorreu. É a opção conservadora:
 pode gerar falso alarme, mas não esconde desmatamento de 2021. O PRODES 2020 e anteriores
 (imagens até agosto de 2020) não contam.
+
+**Região sem dados.** Se o talhão sai da área coberta (mais de 0,1% fora), o risco não é
+calculado. A mensagem diz o que a base cobre (ex.: "A base atual cobre Luís Eduardo Magalhães e
+São Desidério (BA)"), e o editor de talhão mostra a área coberta em azul tracejado, com o atalho
+**Ver área coberta** para levar o mapa até ela.
 
 O importador lê por padrão os campos `DATADETEC`/`CODEALERTA` (formato do MapBiomas Alerta);
 para outras fontes, passe `--campo-data` e `--campo-codigo`.
