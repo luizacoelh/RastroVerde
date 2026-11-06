@@ -14,7 +14,7 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
 | Autenticação | Auth.js (credenciais, JWT) | Padrão do ecossistema Next |
 | IA | **Google Gemini** (API) | Resumo em linguagem simples; plano gratuito |
 | PDF e QR | `@react-pdf/renderer`, `qrcode` | PDF gerado no servidor |
-| Dados de referência | Recorte GeoJSON de **MapBiomas Alerta / PRODES** | Bases públicas oficiais de desmatamento |
+| Dados de referência | Recorte GeoJSON do **PRODES Cerrado** (INPE); MapBiomas Alerta como alternativa | Bases públicas oficiais de desmatamento |
 | Qualidade | ESLint, Vitest, Playwright, GitHub Actions | Lint + testes no CI |
 | Hospedagem | Vercel | Plano gratuito, HTTPS automático |
 
@@ -25,7 +25,11 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
   extensões. *Evolução:* migrar para PostGIS se a base crescer.
 - **ADR-02 — Monólito Next.js.** Duas pessoas e 4 semanas: um único deploy reduz complexidade.
 - **ADR-03 — Base de alertas estática e versionada.** Importada por script (RF19); cada análise
-  registra a versão (RNF11). Elimina dependência de APIs externas instáveis.
+  registra a versão (RNF11). Elimina dependência de APIs externas instáveis. A primeira base é o
+  PRODES Cerrado (INPE) recortado para Luís Eduardo Magalhães e São Desidério (BA), porque o download
+  do MapBiomas Alerta estava fora do ar. O PRODES é anual (agosto a julho): a data de detecção é a
+  `image_date`, e o PRODES 2021 conta como posterior ao corte, mesmo incluindo agosto a dezembro de
+  2020 (opção conservadora; ver README).
 - **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10).
 - **ADR-05 — Supabase como PostgreSQL gerenciado.** Substitui o Neon (decisão da PO, 04/11/2026).
   Usado só como banco Postgres via Prisma: a aplicação conecta pelo *pooler* (`DATABASE_URL`,
@@ -108,7 +112,7 @@ flowchart TB
     EDGE[CDN / HTTPS]
     FN[Funções Serverless Node.js<br/>Next.js 16]
   end
-  subgraph "Supabase (sa-east-1)"
+  subgraph "Supabase (us-west-2 - Oregon)"
     PG[(PostgreSQL 16)]
   end
   subgraph Google Cloud
@@ -127,6 +131,11 @@ flowchart TB
   REPO --> CI
   REPO -- deploy automático --> FN
 ```
+
+O projeto do Supabase foi criado em `us-west-2` (Oregon) e fica lá. Cada consulta das funções em
+São Paulo atravessa o continente (~150 ms de ida e volta). A análise faz poucas consultas por
+talhão e continua bem abaixo do limite do RNF01. Se a latência incomodar, a saída mais simples é
+mover as funções da Vercel para `pdx1` (Oregon), perto do banco.
 
 ## 4.5 Modelo de dados
 

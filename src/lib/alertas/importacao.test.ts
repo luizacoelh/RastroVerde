@@ -1,5 +1,6 @@
+import { area } from "@turf/area";
 import { describe, expect, it } from "vitest";
-import { lerDataDeteccao, prepararAlertas, prepararCobertura } from "./importacao";
+import { lerDataDeteccao, prepararAlertas, prepararCobertura, repararGeometria } from "./importacao";
 
 function quadrado(lng0: number, lat0: number, lng1: number, lat1: number) {
   return {
@@ -39,7 +40,7 @@ describe("lerDataDeteccao", () => {
 describe("prepararAlertas (RF19)", () => {
   const opcoes = { campoData: "DATADETEC", campoCodigo: "CODEALERTA" };
 
-  it("normaliza alertas válidos e descarta os inválidos com motivo", () => {
+  it("normaliza alertas válidos, repara auto-interseção e descarta os inválidos com motivo", () => {
     const geojson = {
       type: "FeatureCollection",
       features: [
@@ -55,12 +56,16 @@ describe("prepararAlertas (RF19)", () => {
     };
     const r = prepararAlertas(geojson, opcoes);
     if (typeof r === "string") throw new Error(r);
-    expect(r.alertas).toHaveLength(1);
+    expect(r.alertas).toHaveLength(2);
     expect(r.alertas[0]).toMatchObject({ codigoFonte: "12345", bbox: [-45.8, -12.1, -45.79, -12.09] });
     expect(r.alertas[0].dataDeteccao.toISOString()).toBe("2023-05-10T00:00:00.000Z");
-    expect(r.descartados.map((d) => d.posicao)).toEqual([1, 2, 3, 4]);
-    expect(r.descartados[2].motivo).toContain("auto-interseção");
-    expect(r.descartados[3].motivo).toContain('"DATADETEC"');
+    // A gravata-borboleta (auto-interseção) é reparada, não descartada: esconder um alerta seria pior.
+    expect(r.reparados).toBe(1);
+    // Vira dois triângulos que se tocam no cruzamento: metade da área do quadrado envolvente.
+    const quadradoInteiro = area(quadrado(-45.8, -12.1, -45.79, -12.09) as GeoJSON.Polygon);
+    expect(area(r.alertas[1].geometria) / quadradoInteiro).toBeCloseTo(0.5, 2);
+    expect(r.descartados.map((d) => d.posicao)).toEqual([1, 2, 4]);
+    expect(r.descartados[2].motivo).toContain('"DATADETEC"');
   });
 
   it("código vazio vira null e descarta altitude", () => {
@@ -73,6 +78,22 @@ describe("prepararAlertas (RF19)", () => {
 
   it("recusa arquivo que não é GeoJSON", () => {
     expect(prepararAlertas({ foo: 1 }, opcoes)).toContain("não é um GeoJSON");
+  });
+});
+
+describe("repararGeometria", () => {
+  it("anéis que só se tocam num vértice mantêm a área", () => {
+    // Buraco encostando no contorno em (0,0): válido pela especificação, mas acusado pelo kinks.
+    const poligono = {
+      type: "Polygon" as const,
+      coordinates: [
+        [[0, 0], [0.01, 0], [0.01, 0.01], [0, 0.01], [0, 0]],
+        [[0, 0], [0.004, 0.002], [0.002, 0.004], [0, 0]],
+      ],
+    };
+    const reparada = repararGeometria(poligono);
+    expect(reparada).not.toBeNull();
+    expect(area(reparada!)).toBeCloseTo(area(poligono), -1);
   });
 });
 
