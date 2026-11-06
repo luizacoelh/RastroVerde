@@ -2,7 +2,7 @@
 
 | Item | Valor |
 |---|---|
-| Versão | 1.2 — 06/11/2026 (correção do defeito 8: E2E-07 e unitários do município) |
+| Versão | 1.3 — 06/11/2026 (P-19: bloqueio do município conferido em produção) |
 | Versão testada | Unitários, E2E, lint e build: branch `fix/municipio-declarado` em `328922f` (`main` com os PRs #8 e #9 + correção do defeito 8). Teste manual em produção: versão publicada em 06/11, antes dessa correção |
 | Produção | https://rastroverde.vercel.app (Vercel, funções em `pdx1`; Supabase `us-west-2`) |
 | Evidências | [`docs/evidencias/`](evidencias/) |
@@ -40,7 +40,7 @@ do merge de cada sprint; fluxo principal funcionando em produção.
 | Testes E2E (`npm run test:e2e`) | **7 de 7 passaram** (4,4 min) | [`testes-e2e.txt`](evidencias/testes-e2e.txt), [`e2e/`](evidencias/e2e/) |
 | Lint, typecheck e build | Sem erros nem avisos | [`lint-typecheck-build.txt`](evidencias/lint-typecheck-build.txt) |
 | CI no GitHub Actions | **14 de 14 execuções com sucesso** (7 PRs e 7 pushes na `main`) | [`ci-execucoes.txt`](evidencias/ci-execucoes.txt) |
-| Teste manual em produção | **18 de 18 casos passaram**; 2 defeitos encontrados (seção 6, defeitos 7 e 8) | [`producao/`](evidencias/producao/) |
+| Teste manual em produção | **19 de 19 casos passaram**; 2 defeitos encontrados e corrigidos (seção 6, defeitos 7 e 8) | [`producao/`](evidencias/producao/) |
 
 ## 3. Casos de teste automatizados
 
@@ -116,6 +116,7 @@ públicas foram abertas num navegador headless, sem login.
 | P-16 | Excluir a propriedade com dossiê emitido | Botão desativado, com o motivo | Desativado: "Esta propriedade tem talhão com dossiê emitido…" | Passou |
 | P-17 | Página de verificação a 360 px de largura | Legível, sem rolagem horizontal | Legível ([captura](evidencias/producao/23-verificacao-celular-360px.png)) | Passou |
 | P-18 | Ler o QR code de um dossiê com a câmera do celular | Abre `/verificar/{codigo}` com "Dossiê autêntico" | Abriu a verificação do dossiê `RV-2026-GF9S4N` no navegador do celular ([captura](evidencias/producao/24-qr-code-celular.jpg)) | Passou |
+| P-19 | Depois do deploy do PR #10 (migração `municipio` aplicada e limites de LEM e São Desidério importados), clicar em **Nova análise** num talhão de LEM numa propriedade declarada em Uruçuí/PI; repetir numa propriedade declarada em Luís Eduardo Magalhães/BA | Na primeira, análise bloqueada com a mensagem do município; na segunda, análise normal | Bloqueada com a mensagem do município; na "Fazenda Teste Produção" a análise funcionou. Teste feito pela PO ([captura](evidencias/producao/26-municipio-bloqueado.png)) | Passou |
 
 **Leitura do QR code com câmera (P-18):** feita pela PO com o celular, num dossiê emitido em
 produção. A página aberta também mostra o defeito 8: o município exibido (Uruçuí/PI) não é onde
@@ -143,7 +144,7 @@ conta no cabeçalho foi ocultado por CSS antes da captura; nenhum outro conteúd
 | RN01 (data de corte) | Unitários de análise; E2E-02 (alerta de 2019 ignorado) | P-07 (alertas de 2021 e 2022 contam) | |
 | RN02–RN03 (dossiê só da análise atual) | E2E-05 | — | |
 | RN04 (dossiê imutável, exclusão bloqueada) | E2E-04 | P-16 | |
-| RN05 (talhão no município declarado) | E2E-07, 12 unitários | — | Em produção depois do merge, da migração `municipio` e da importação dos limites |
+| RN05 (talhão no município declarado) | E2E-07, 12 unitários | P-19 | |
 | RNF01 (análise ≤ 5 s em talhão ≤ 1.000 ha) | — | — | Medido por script local com a base PRODES: 60–82 ms por análise de talhões de ~1.000 ha. **Não há teste automatizado de desempenho** |
 | RNF02 (PDF ≤ 10 s com IA) | — | P-08 | O dossiê ficou pronto dentro da espera de 10 s do teste, sem cronometragem precisa. A chamada ao Gemini (`gemini-3.5-flash-lite`) levou de 1,2 a 1,6 s em 8 chamadas reais feitas localmente |
 | RNF05 (HTTPS; chaves no servidor) | — | P-01 a P-17 em HTTPS | A chave do Gemini vai em cabeçalho, nunca na URL (teste unitário) |

@@ -18,5 +18,6 @@ foram gerados em 06/11/2026 na branch `fix/municipio-declarado` em `328922f`, ex
 - **Sem login** (navegador headless): `01-cadastro`, `02-login`, `20-verificar-codigo`, `21-verificacao-autentico`, `22-verificacao-nao-encontrado` e `23-verificacao-celular-360px` (360 px de largura).
 - **Com login**, na sessão de uma conta de teste: os demais arquivos. O **nome da conta no cabeçalho foi ocultado** por CSS antes de cada captura, por privacidade; nada mais foi alterado. Só aparecem a "Fazenda Teste Produção" e os talhões de teste.
 - `24-qr-code-celular.jpg`: print do celular da PO depois de ler o QR code do dossiê `RV-2026-GF9S4N` (caso P-18). O município mostrado, Uruçuí/PI, é o defeito 8.
+- `26-municipio-bloqueado.png`: tela da PO no caso P-19, a análise bloqueada porque o talhão (LEM/BA) não está no município declarado (Uruçuí/PI). Nome da conta e dados do navegador removidos.
 - `dossie-RV-2026-7VATD6.pdf` é o PDF emitido em produção, baixado pelo botão **Baixar dossiê PDF**. O SHA-256 dele é o mesmo da página de verificação. `25-dossie-pdf-pagina1.png` é a imagem da página.
 - Em `07-editar-talhao.jpg` aparece o defeito 7 do relatório: o talhão editado fica pequeno porque o mapa enquadra os dois pivôs.
