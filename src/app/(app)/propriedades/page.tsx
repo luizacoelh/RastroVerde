@@ -4,11 +4,10 @@ import { LinkBotao, SeloRisco } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
 import { riscosDasPropriedades } from "@/lib/dados/analises";
 import { listarPropriedades } from "@/lib/dados/propriedades";
+import { formatoDia } from "@/lib/formato";
 import { formatarHa } from "@/lib/geo/talhao";
 
 export const metadata: Metadata = { title: "Minhas propriedades" };
-
-const formatoDia = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo" });
 
 export default async function PaginaPropriedades() {
   const usuario = await usuarioAtual();
