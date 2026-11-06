@@ -96,6 +96,7 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 | Item | Origem | Observação |
 |---|---|---|
 | Limite de tentativas de login (rate limiting) | Revisão da Sprint 1 | Mitiga força bruta de senha; hoje o login usa só bcrypt e mensagem genérica. |
+| Enquadrar só o talhão editado no mapa de edição | Teste em produção (06/11) | Hoje o mapa enquadra todos os talhões da propriedade; com talhões distantes, o editado fica pequeno. Defeito 7 do [relatório de testes](07-plano-e-relatorio-de-testes.md#6-defeitos-e-achados). |
 
 ## Definição de Pronto (DoD)
 

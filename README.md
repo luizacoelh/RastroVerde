@@ -144,6 +144,10 @@ com o seu `npm run dev` aberto.
 | 4 | Arquitetura | [docs/04-arquitetura.md](docs/04-arquitetura.md) |
 | 5 | Protótipo de Interface | [docs/05-prototipo.md](docs/05-prototipo.md) |
 | 6 | Plano de Projeto | [docs/06-plano-projeto.md](docs/06-plano-projeto.md) |
+| 7 | Plano e Relatório de Testes | [docs/07-plano-e-relatorio-de-testes.md](docs/07-plano-e-relatorio-de-testes.md) |
+| 8 | Manual do Usuário | [docs/08-manual-do-usuario.md](docs/08-manual-do-usuario.md) |
+| 9 | Documentação Técnica | [docs/09-documentacao-tecnica.md](docs/09-documentacao-tecnica.md) |
+| 10 | Roteiro da Apresentação | [docs/10-roteiro-apresentacao.md](docs/10-roteiro-apresentacao.md) |
 
 Escopo do MVP e evoluções futuras: [docs/01-visao.md](docs/01-visao.md#6-escopo-do-mvp).
 
