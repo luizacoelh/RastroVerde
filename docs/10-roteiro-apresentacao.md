@@ -110,7 +110,7 @@ Use só os fatos abaixo; eles saem do GitHub e de [07-plano-e-relatorio-de-teste
 - **CI no GitHub Actions** em todo PR e push: lint, typecheck, 144 testes unitários com cobertura
   e build. **14 de 14 execuções com sucesso.**
 - **7 testes E2E** (Playwright) rodados antes de cada merge, mais o **teste manual em produção**
-  (18 de 18 casos, incluindo a leitura do QR code com o celular).
+  (19 de 19 casos, incluindo a leitura do QR code com o celular e o bloqueio do município declarado).
 - Mostrar a tabela de defeitos do relatório de testes: os testes acharam problemas reais (polígonos
   descartados, IA lenta e exagerada, PDF com rodapé fora da página) e eles foram corrigidos antes
   da entrega.
