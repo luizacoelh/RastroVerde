@@ -130,16 +130,25 @@ model Analise {
   @@map("analise")
 }
 
+/// Dossiê emitido (US10). Imutável (RN04): guarda o PDF e uma cópia dos dados usados nele, para a
+/// página de verificação não depender de propriedade/talhão, que podem ser editados depois.
 model Dossie {
-  id        String   @id @default(cuid())
-  analiseId String   @unique
-  codigo    String   @unique
-  /// SHA-256 (hex) do conteúdo do dossiê
-  hash      String
-  resumoIA  String?
-  emitidoEm DateTime @default(now())
+  id          String   @id @default(cuid())
+  analiseId   String   @unique
+  /// Código público (ex.: RV-2026-8F3K2Q), usado em /verificar/{codigo}
+  codigo      String   @unique
+  /// SHA-256 (hex) dos bytes do PDF (RF17)
+  hash        String
+  /// Resumo em linguagem simples (RF16): da IA ou o texto padrão
+  resumo      String
+  resumoPorIA Boolean
+  /// Dados do dossiê no momento da emissão (propriedade, talhão, análise, base)
+  conteudo    Json
+  pdf         Bytes
+  emitidoEm   DateTime @default(now())
 
-  analise Analise @relation(fields: [analiseId], references: [id], onDelete: Cascade)
+  /// Restrict: um dossiê emitido impede excluir a análise e, em cascata, o talhão (RN04).
+  analise Analise @relation(fields: [analiseId], references: [id], onDelete: Restrict)
 
   @@map("dossie")
 }
