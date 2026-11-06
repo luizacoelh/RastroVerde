@@ -34,4 +34,23 @@ export default function prepararBanco() {
     ],
     { cwd: RAIZ, stdio: "inherit", env: { ...process.env, DIRECT_URL: url } },
   );
+
+  // Município fictício com o mesmo limite da cobertura de teste, com o nome usado nas propriedades
+  // do E2E. Serve para a conferência do município declarado (defeito 8). Código IBGE fictício.
+  execFileSync(
+    process.execPath,
+    [
+      path.join(RAIZ, "node_modules", "tsx", "dist", "cli.mjs"),
+      path.join(RAIZ, "scripts", "importar-municipios.ts"),
+      "--arquivo",
+      path.join(RAIZ, "e2e", "fixtures", "cobertura-teste.geojson"),
+      "--nome",
+      "Luís Eduardo Magalhães",
+      "--uf",
+      "BA",
+      "--codigo",
+      "9999999",
+    ],
+    { cwd: RAIZ, stdio: "inherit", env: { ...process.env, DIRECT_URL: url } },
+  );
 }

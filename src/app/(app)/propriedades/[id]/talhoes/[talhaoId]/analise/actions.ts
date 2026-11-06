@@ -15,7 +15,10 @@ export type EstadoAnalise = { mensagem?: string };
 export async function analisarTalhao(propriedadeId: string, talhaoId: string): Promise<EstadoAnalise> {
   const usuario = await usuarioAtual();
   const resultado = await executarAnalise(usuario.id, propriedadeId, talhaoId);
-  if (!resultado.ok) return { mensagem: mensagemRegiaoSemDados(await descricoesCobertura()) };
+  if (!resultado.ok) {
+    if (resultado.motivo === "municipio") return { mensagem: resultado.mensagem };
+    return { mensagem: mensagemRegiaoSemDados(await descricoesCobertura()) };
+  }
   revalidatePath(`/propriedades/${propriedadeId}`);
   redirect(`/propriedades/${propriedadeId}/talhoes/${talhaoId}/analise`);
 }

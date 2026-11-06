@@ -96,7 +96,7 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 | Item | Origem | Observação |
 |---|---|---|
 | Limite de tentativas de login (rate limiting) | Revisão da Sprint 1 | Mitiga força bruta de senha; hoje o login usa só bcrypt e mensagem genérica. |
-| Município declarado × localização do talhão | Teste em produção (06/11) | O dossiê mostra o município digitado na propriedade, sem conferir com o polígono; dois dossiês de teste saíram com Uruçuí/PI para talhões em LEM/BA. Defeito 8 do [relatório de testes](07-plano-e-relatorio-de-testes.md#6-defeitos-e-achados); correção em discussão. |
+| Município da propriedade escolhido numa lista do IBGE | Defeito 8 (teste em produção, 06/11) | A conferência pelo polígono (RN05) já bloqueia município errado; a lista acabaria com grafias diferentes ("Uruçuí", "Urucui") e daria o código IBGE direto. |
 
 ## Definição de Pronto (DoD)
 

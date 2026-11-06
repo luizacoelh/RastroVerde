@@ -4,7 +4,11 @@ import { expect, type Page } from "@playwright/test";
 export const FIXTURES = path.join(__dirname, "fixtures");
 
 /** Cria uma conta nova e uma propriedade; devolve a URL da propriedade. */
-export async function criarContaEPropriedade(page: Page, nomePropriedade = "Fazenda E2E"): Promise<string> {
+export async function criarContaEPropriedade(
+  page: Page,
+  nomePropriedade = "Fazenda E2E",
+  local: { municipio: string; uf: string } = { municipio: "Luís Eduardo Magalhães", uf: "BA" },
+): Promise<string> {
   await page.goto("/cadastro");
   await page.getByLabel("Nome").fill("Teste E2E");
   await page.getByLabel("E-mail").fill(`e2e-${Date.now()}-${Math.random().toString(36).slice(2, 7)}@teste.local`);
@@ -14,8 +18,8 @@ export async function criarContaEPropriedade(page: Page, nomePropriedade = "Faze
 
   await page.goto("/propriedades/nova");
   await page.getByLabel("Nome da propriedade").fill(nomePropriedade);
-  await page.getByLabel("Município").fill("Luís Eduardo Magalhães");
-  await page.getByLabel("UF").selectOption("BA");
+  await page.getByLabel("Município").fill(local.municipio);
+  await page.getByLabel("UF").selectOption(local.uf);
   await page.getByLabel("Cultura").selectOption("Soja");
   await page.locator("main").locator('button[type="submit"]').click();
   await expect(page).toHaveURL(/\/propriedades\/(?!nova$)[^/]+$/, { timeout: 60_000 });
@@ -54,4 +58,14 @@ export async function criarTalhaoAnalisado(page: Page, urlPropriedade: string, a
   await page.getByRole("link", { name: `Analisar — ${nome}` }).click();
   await page.getByRole("button", { name: "Analisar talhão" }).click();
   await expect(page.getByText(/Risco (baixo|atenção|alto)/).first()).toBeVisible({ timeout: 60_000 });
+}
+
+/** Na página da propriedade, troca município e UF pelo formulário de edição. */
+export async function mudarMunicipio(page: Page, urlPropriedade: string, municipio: string, uf: string) {
+  await page.goto(`${urlPropriedade}/editar`);
+  await page.getByLabel("Município").fill(municipio);
+  await page.getByLabel("UF").selectOption(uf);
+  await page.locator("main").locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(urlPropriedade, { timeout: 60_000 });
+  await expect(page.getByText(`${municipio}/${uf}`)).toBeVisible();
 }

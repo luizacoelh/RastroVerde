@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "alertas:importar": "tsx scripts/importar-alertas.ts"
+    "alertas:importar": "tsx scripts/importar-alertas.ts",
+    "municipios:importar": "tsx scripts/importar-municipios.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",

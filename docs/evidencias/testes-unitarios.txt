@@ -7,19 +7,19 @@
       Coverage enabled with v8
 
 
- Test Files  12 passed (12)
-      Tests  132 passed (132)
-   Start at  11:53:24
-   Duration  6.38s (tests 40%, import 38%, transform 15%, worker 7%)
+ Test Files  13 passed (13)
+      Tests  144 passed (144)
+   Start at  13:07:55
+   Duration  3.71s (import 46%, tests 37%, worker 13%, transform 4%)
 
-    Isolate  12 workers spawned · ~613ms startup each (spawn + environment, per file)
-             at least ~1.84s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  13 workers spawned · ~370ms startup each (spawn + environment, per file)
+             at least ~1.23s faster with isolate: false — reuses workers across files instead of one per file
 
  % Coverage report from v8
 ------------------|---------|----------|---------|---------|-------------------
 File              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
 ------------------|---------|----------|---------|---------|-------------------
-All files         |   75.14 |    75.47 |   66.01 |   76.95 |                   
+All files         |   74.59 |    75.29 |   66.66 |   75.92 |                   
  lib              |   77.04 |    60.97 |   81.81 |   78.84 |                   
   cobertura.ts    |    90.9 |     62.5 |     100 |     100 | 6                 
   dal.ts          |       0 |        0 |       0 |       0 | 10-14             
@@ -28,23 +28,24 @@ All files         |   75.14 |    75.47 |   66.01 |   76.95 |
  lib/alertas      |   91.54 |    87.03 |     100 |   98.11 |                   
   importacao.ts   |   91.54 |    87.03 |     100 |   98.11 | 62                
  lib/dados        |       0 |        0 |       0 |       0 |                   
-  analises.ts     |       0 |        0 |       0 |       0 | 17-190            
-  dossies.ts      |       0 |        0 |       0 |       0 | 13-147            
+  analises.ts     |       0 |        0 |       0 |       0 | 26-229            
+  dossies.ts      |       0 |        0 |       0 |       0 | 14-155            
   propriedades.ts |       0 |        0 |       0 |       0 | 8-41              
  lib/dossie       |     100 |    88.52 |     100 |     100 |                   
   conteudo.ts     |     100 |    71.42 |     100 |     100 | 99                
   desenho.ts      |     100 |    83.33 |     100 |     100 | 70-74             
   resumo.ts       |     100 |    92.85 |     100 |     100 | 32,145,160        
- lib/geo          |   96.53 |    92.68 |    92.3 |   98.61 |                   
+ lib/geo          |   96.85 |     92.7 |   93.75 |   98.72 |                   
   analise.ts      |   97.67 |    88.46 |     100 |     100 | 89,102-105        
   colecao.ts      |       0 |      100 |       0 |       0 | 8-10              
   geojson.ts      |     100 |    91.42 |     100 |     100 | 37,42             
+  municipio.ts    |     100 |    92.85 |     100 |     100 | 56                
   talhao.ts       |   96.73 |    95.16 |     100 |     100 | 41,124,161        
 ------------------|---------|----------|---------|---------|-------------------
 
 =============================== Coverage summary ===============================
-Statements   : 75.14% ( 396/527 )
-Branches     : 75.47% ( 240/318 )
-Functions    : 66.01% ( 68/103 )
-Lines        : 76.95% ( 334/434 )
+Statements   : 74.59% ( 414/555 )
+Branches     : 75.29% ( 253/336 )
+Functions    : 66.66% ( 74/111 )
+Lines        : 75.92% ( 347/457 )
 ================================================================================

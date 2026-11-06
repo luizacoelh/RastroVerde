@@ -2,13 +2,22 @@
 import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
-import { obterTalhao } from "@/lib/dados/propriedades";
+import { obterPropriedade, obterTalhao } from "@/lib/dados/propriedades";
 import { DATA_CORTE_EUDR, analisarSobreposicao, talhaoCoberto, type Risco, type Sobreposicao } from "@/lib/geo/analise";
 import type { FeatureCollection } from "geojson";
+import {
+  conferirMunicipio,
+  mensagemMunicipioDivergente,
+  type ConferenciaMunicipio,
+  type MunicipioDeclarado,
+} from "@/lib/geo/municipio";
 import type { GeometriaTalhao } from "@/lib/geo/talhao";
 import { riscoMaisGrave } from "@/lib/risco";
 
-export type ResultadoExecucao = { ok: true; analiseId: string } | { ok: false; motivo: "sem-dados" };
+export type ResultadoExecucao =
+  | { ok: true; analiseId: string }
+  | { ok: false; motivo: "sem-dados" }
+  | { ok: false; motivo: "municipio"; mensagem: string };
 
 type Retangulo = { bboxMinLng: number; bboxMinLat: number; bboxMaxLng: number; bboxMaxLat: number };
 
@@ -23,6 +32,25 @@ function cruzaRetangulo(r: Retangulo) {
 }
 
 /**
+ * Defeito 8: o talhão precisa estar no município declarado na propriedade, porque o dossiê mostra
+ * esse município ao comprador. Usa só os limites cujo retângulo cruza o do talhão.
+ */
+export async function conferirMunicipioDoTalhao(
+  talhao: Retangulo & { geometria: GeometriaTalhao },
+  declarado: MunicipioDeclarado,
+): Promise<ConferenciaMunicipio> {
+  const limites = await db.municipio.findMany({
+    where: cruzaRetangulo(talhao),
+    select: { nome: true, uf: true, geometria: true },
+  });
+  return conferirMunicipio(
+    talhao.geometria,
+    declarado,
+    limites.map((l) => ({ nome: l.nome, uf: l.uf, geometria: l.geometria as unknown as GeometriaTalhao })),
+  );
+}
+
+/**
  * UC4: escolhe a base mais recente que cobre o talhão, cruza com os alertas posteriores
  * a 31/12/2020 e grava a análise com a versão da base (RF11, RNF11).
  */
@@ -31,7 +59,18 @@ export async function executarAnalise(
   propriedadeId: string,
   talhaoId: string,
 ): Promise<ResultadoExecucao> {
-  const talhao = await obterTalhao(usuarioId, propriedadeId, talhaoId);
+  const propriedade = await obterPropriedade(usuarioId, propriedadeId);
+  const talhao = await obterTalhao(usuarioId, propriedade.id, talhaoId);
+
+  // Defeito 8: bloqueia antes de calcular, para não gravar análise de um município falso.
+  const conferencia = await conferirMunicipioDoTalhao(talhao, propriedade);
+  if (conferencia.situacao === "diverge") {
+    return {
+      ok: false,
+      motivo: "municipio",
+      mensagem: mensagemMunicipioDivergente(conferencia.encontrado, propriedade, "analise"),
+    };
+  }
 
   const bases = await db.baseAlertas.findMany({
     where: cruzaRetangulo(talhao),
