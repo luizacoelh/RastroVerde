@@ -6,16 +6,16 @@ import { COR_CONTORNO, COR_CONTORNO_SOBREPOSICAO, COR_SOBREPOSICAO } from "@/com
 import { SeloRisco, Trilha, classeBotao } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
 import { contarAnalises, obterUltimaAnalise, temAnaliseObsoleta } from "@/lib/dados/analises";
+import { obterDossieDaAnalise } from "@/lib/dados/dossies";
 import { obterPropriedade, obterTalhao } from "@/lib/dados/propriedades";
 import { formatarPercentual } from "@/lib/geo/analise";
 import { formatarHa } from "@/lib/geo/talhao";
 import { formatarDataIso, formatoDataHora } from "@/lib/formato";
 import { EXPLICACAO_RISCO } from "@/lib/risco";
-import { analisarTalhao } from "./actions";
+import { analisarTalhao, gerarDossie } from "./actions";
 import { BotaoAnalisar } from "./botao-analisar";
 
 export const metadata: Metadata = { title: "Análise do talhão" };
-
 
 export default async function PaginaAnalise({ params }: PageProps<"/propriedades/[id]/talhoes/[talhaoId]/analise">) {
   const { id, talhaoId } = await params;
@@ -25,6 +25,7 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
   const analise = await obterUltimaAnalise(usuario.id, t.id);
   const obsoleta = !analise && (await temAnaliseObsoleta(usuario.id, t.id));
   const qtdAnalises = await contarAnalises(usuario.id, t.id);
+  const dossie = analise ? await obterDossieDaAnalise(usuario.id, analise.id) : null;
   const acao = analisarTalhao.bind(null, p.id, t.id);
 
   const talhao: FeatureCollection = {
@@ -92,6 +93,37 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
             </p>
           )}
 
+          {dossie ? (
+            <div className="space-y-3 rounded-lg border border-green-200 bg-green-50/60 p-4" data-testid="dossie">
+              <div>
+                <p className="text-sm text-stone-600">Dossiê emitido em {formatoDataHora.format(dossie.emitidoEm)}</p>
+                <p className="font-mono text-lg font-semibold text-green-900">{dossie.codigo}</p>
+              </div>
+              <blockquote className="border-l-2 border-green-700 pl-3 text-sm text-stone-800">
+                {dossie.resumo}
+                <footer className="mt-1 text-xs text-stone-600">
+                  {dossie.resumoPorIA ? "Resumo redigido por IA (Gemini)" : "Resumo padrão (IA indisponível)"}
+                </footer>
+              </blockquote>
+              <a href={`/dossies/${dossie.codigo}/pdf`} className={`${classeBotao.primario} w-full`}>
+                Baixar dossiê PDF
+              </a>
+              <a
+                href={`/verificar/${dossie.codigo}`}
+                target="_blank"
+                rel="noopener"
+                className="block text-center text-sm font-medium text-green-800 hover:underline"
+              >
+                Abrir página de verificação
+              </a>
+            </div>
+          ) : analise ? (
+            <BotaoAnalisar
+              acao={gerarDossie.bind(null, p.id, t.id)}
+              rotulo="Gerar dossiê PDF"
+              rotuloPendente="Gerando dossiê…"
+            />
+          ) : null}
           <BotaoAnalisar
             acao={acao}
             rotulo={analise ? "Nova análise" : "Analisar talhão"}
