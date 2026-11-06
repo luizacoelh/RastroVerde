@@ -2,7 +2,8 @@
 //
 // Uso:
 //   npm run alertas:importar -- --arquivo alertas.geojson --cobertura municipio1.geojson [--cobertura municipio2.geojson] \
-//     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid
+//     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid \
+//     --descricao-cobertura "Luís Eduardo Magalhães e São Desidério (BA)"
 //
 // Cada (fonte, versão) é importada uma única vez e não muda depois (RNF11: as análises
 // guardam a versão usada). Para atualizar os dados, importe uma versão nova.
@@ -24,6 +25,9 @@ Obrigatórios:
   --versao <texto>        Ex.: 2026-11
 
 Opcionais:
+  --descricao-cobertura <texto>  Como a área coberta aparece para o usuário, ex.:
+                          "Luís Eduardo Magalhães e São Desidério (BA)". Numa base já importada,
+                          só atualiza esta descrição (os alertas não mudam).
   --campo-data <nome>     Propriedade com a data de detecção (padrão: DATADETEC, do MapBiomas;
                           PRODES: image_date)
   --campo-codigo <nome>   Propriedade com o código do alerta (padrão: CODEALERTA; PRODES: uuid)
@@ -58,12 +62,14 @@ async function main() {
       "campo-codigo": { type: "string", default: "CODEALERTA" },
       simular: { type: "boolean", default: false },
       "pular-se-existir": { type: "boolean", default: false },
+      "descricao-cobertura": { type: "string" },
       ajuda: { type: "boolean", short: "h", default: false },
     },
   });
 
   const fonte = values.fonte?.trim();
   const versao = values.versao?.trim();
+  const descricaoCobertura = values["descricao-cobertura"]?.trim() || undefined;
   if (values.ajuda || !values.arquivo || !values.cobertura?.length || !fonte || !versao) {
     console.log(AJUDA);
     process.exit(values.ajuda ? 0 : 1);
@@ -93,6 +99,7 @@ async function main() {
   ).length;
 
   console.log(`Base: ${fonte} ${versao}`);
+  if (descricaoCobertura) console.log(`Cobertura: ${descricaoCobertura}`);
   console.log(`Alertas válidos: ${alertas.length} (${posCorte} detectados após 31/12/2020)`);
   if (reparados) console.log(`Reparados (auto-interseção ou anéis que se tocam): ${reparados}`);
   if (descartados.length) {
@@ -118,6 +125,12 @@ async function main() {
     const existente = await db.baseAlertas.findUnique({ where: { fonte_versao: { fonte, versao } } });
     if (existente) {
       const mensagem = `A base ${fonte} ${versao} já foi importada em ${existente.importadaEm.toISOString()}.`;
+      // A descrição é só texto para o usuário: pode ser corrigida sem criar versão nova.
+      if (descricaoCobertura && descricaoCobertura !== existente.descricaoCobertura) {
+        await db.baseAlertas.update({ where: { id: existente.id }, data: { descricaoCobertura } });
+        console.log(`${mensagem} Descrição da cobertura atualizada; alertas e cobertura não mudaram.`);
+        return;
+      }
       if (values["pular-se-existir"]) {
         console.log(`${mensagem} Nada a fazer.`);
         return;
@@ -133,6 +146,7 @@ async function main() {
             fonte,
             versao,
             cobertura: cobertura.geometria as unknown as Prisma.InputJsonObject,
+            descricaoCobertura,
             bboxMinLng: minLng,
             bboxMinLat: minLat,
             bboxMaxLng: maxLng,

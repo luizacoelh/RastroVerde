@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { usuarioAtual } from "@/lib/dal";
-import { executarAnalise } from "@/lib/dados/analises";
+import { descricoesCobertura, executarAnalise } from "@/lib/dados/analises";
+import { mensagemRegiaoSemDados } from "@/lib/cobertura";
 import { emitirDossie } from "@/lib/dados/dossies";
 import { urlBase } from "@/lib/url";
 
@@ -14,12 +15,7 @@ export type EstadoAnalise = { mensagem?: string };
 export async function analisarTalhao(propriedadeId: string, talhaoId: string): Promise<EstadoAnalise> {
   const usuario = await usuarioAtual();
   const resultado = await executarAnalise(usuario.id, propriedadeId, talhaoId);
-  if (!resultado.ok) {
-    return {
-      mensagem:
-        "Região sem dados: a base de alertas importada não cobre toda a área deste talhão. O risco não foi calculado.",
-    };
-  }
+  if (!resultado.ok) return { mensagem: mensagemRegiaoSemDados(await descricoesCobertura()) };
   revalidatePath(`/propriedades/${propriedadeId}`);
   redirect(`/propriedades/${propriedadeId}/talhoes/${talhaoId}/analise`);
 }

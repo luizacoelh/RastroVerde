@@ -5,3 +5,5 @@ export const COR_OUTROS = "#57534e";
 /** Sobreposição com alertas de desmatamento (RF12). */
 export const COR_SOBREPOSICAO = "#dc2626";
 export const COR_CONTORNO_SOBREPOSICAO = "#991b1b";
+/** Área coberta pela base de alertas (UC4), em azul tracejado para não confundir com talhões. */
+export const COR_COBERTURA = "#1d4ed8";

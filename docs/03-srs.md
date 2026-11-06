@@ -139,6 +139,8 @@ flowchart LR
 - **Exceção:** base de alertas não cobre a região → aviso "região sem dados" e risco não calculado.
   Cada base guarda a área de cobertura do recorte (ex.: limites dos municípios); usa-se a base mais
   recente que cobre o talhão inteiro (tolerância de 0,1% da área para arredondamento de bordas).
+  O aviso diz o que as bases cobrem (ex.: "Luís Eduardo Magalhães e São Desidério (BA)"), e o
+  editor de talhão mostra a área coberta em azul tracejado.
 - Sobreposições menores que 1 m² são tratadas como ruído numérico (alerta que só encosta na borda).
 
 ## 7. Matriz de rastreabilidade (resumo)

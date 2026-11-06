@@ -4,6 +4,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import { obterTalhao } from "@/lib/dados/propriedades";
 import { DATA_CORTE_EUDR, analisarSobreposicao, talhaoCoberto, type Risco, type Sobreposicao } from "@/lib/geo/analise";
+import type { FeatureCollection } from "geojson";
 import type { GeometriaTalhao } from "@/lib/geo/talhao";
 import { riscoMaisGrave } from "@/lib/risco";
 
@@ -148,4 +149,43 @@ export async function listarAnalises(usuarioId: string, talhaoId: string) {
 
 export async function contarAnalises(usuarioId: string, talhaoId: string) {
   return db.analise.count({ where: { talhaoId, talhao: { propriedade: { usuarioId } } } });
+}
+
+/** Descrições das áreas cobertas pelas bases (mais recente primeiro), para a mensagem de "região sem dados". */
+export async function descricoesCobertura(): Promise<(string | null)[]> {
+  const bases = await db.baseAlertas.findMany({ orderBy: { importadaEm: "desc" }, select: { descricaoCobertura: true } });
+  return bases.map((b) => b.descricaoCobertura);
+}
+
+/** Arredonda as coordenadas (5 casas ≈ 1 m) para enviar a cobertura ao mapa com menos bytes. */
+function arredondar(coordenadas: unknown): unknown {
+  return Array.isArray(coordenadas)
+    ? coordenadas.map(arredondar)
+    : typeof coordenadas === "number"
+      ? Math.round(coordenadas * 1e5) / 1e5
+      : coordenadas;
+}
+
+/**
+ * Área coberta por todas as bases de alertas, para desenhar no editor de talhão. É dado de
+ * referência público (limites de municípios), igual para todos os usuários.
+ */
+export async function obterCoberturas(): Promise<{ colecao: FeatureCollection; descricoes: string[] }> {
+  const bases = await db.baseAlertas.findMany({
+    orderBy: { importadaEm: "desc" },
+    select: { fonte: true, versao: true, descricaoCobertura: true, cobertura: true },
+  });
+  const colecao: FeatureCollection = {
+    type: "FeatureCollection",
+    features: bases.map((b) => {
+      const g = b.cobertura as unknown as GeometriaTalhao;
+      return {
+        type: "Feature",
+        properties: { fonte: b.fonte, versao: b.versao, descricao: b.descricaoCobertura },
+        geometry: { type: g.type, coordinates: arredondar(g.coordinates) } as GeometriaTalhao,
+      };
+    }),
+  };
+  const descricoes = [...new Set(bases.map((b) => b.descricaoCobertura).filter((d): d is string => Boolean(d)))];
+  return { colecao, descricoes };
 }
