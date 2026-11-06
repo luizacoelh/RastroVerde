@@ -58,7 +58,7 @@ test("importa GeoJSON, analisa e mostra risco Atenção com a sobreposição em 
   await expect(page.getByRole("link", { name: "Ver análise — Talhão importado" })).toBeVisible();
 });
 
-test("talhão fora da cobertura da base: região sem dados, sem risco calculado", async ({ page }) => {
+test("talhão fora da cobertura da base: região sem dados, sem risco calculado", async ({ page }, testInfo) => {
   const urlPropriedade = await criarContaEPropriedade(page, "Fazenda fora da cobertura");
   await importarTalhao(page, "talhao-fora-cobertura.geojson", "Talhão sem dados");
   await expect(page).toHaveURL(urlPropriedade, { timeout: 60_000 });
@@ -66,8 +66,19 @@ test("talhão fora da cobertura da base: região sem dados, sem risco calculado"
   await page.getByRole("link", { name: "Analisar — Talhão sem dados" }).click();
   await page.getByRole("button", { name: "Analisar talhão" }).click();
   await expect(page.getByText(/Região sem dados/)).toBeVisible({ timeout: 60_000 });
+  // A mensagem diz onde há cobertura (descrição gravada pelo importador no setup do E2E).
+  await expect(page.getByText(/A base atual cobre a área de teste fictícia \(BA\)\./)).toBeVisible();
   await expect(page.getByText(/Risco (baixo|atenção|alto)/)).toHaveCount(0);
 
   await page.goto(urlPropriedade);
   await expect(page.getByText("· não analisado")).toBeVisible();
+
+  // No editor, a área coberta aparece com legenda e atalho para enquadrá-la.
+  await page.getByRole("link", { name: "Editar — Talhão sem dados" }).click();
+  await expect(page.getByText(/Área coberta pela base de alertas \(a área de teste fictícia \(BA\)\)/)).toBeVisible({
+    timeout: 60_000,
+  });
+  await page.getByRole("button", { name: "Ver área coberta" }).click();
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: testInfo.outputPath("editor-cobertura.png"), fullPage: true });
 });
