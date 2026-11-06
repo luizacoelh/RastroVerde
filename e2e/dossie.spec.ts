@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { expect, test, type Browser } from "@playwright/test";
-import { criarContaEPropriedade, criarTalhaoAnalisado, importarTalhao } from "./auxiliares";
+import { criarContaEPropriedade, criarTalhaoAnalisado, esperarEditor, importarTalhao } from "./auxiliares";
 
 const FORMATO_CODIGO = /RV-\d{4}-[0-9A-HJKMNP-TV-Z]{6}/;
 
@@ -79,7 +79,9 @@ test("gera o dossiê, verifica pelo QR code sem login e confere o hash do PDF", 
   await criarContaEPropriedade(outro, "Fazenda de outra pessoa");
   const resposta = await outro.request.get(`/dossies/${codigo}/pdf`);
   expect(resposta.status()).toBe(404);
-  expect(await (await comprador.request.get(`/dossies/${codigo}/pdf`, { maxRedirects: 0 })).status()).not.toBe(200);
+  expect((await comprador.request.get(`/dossies/${codigo}/pdf`, { maxRedirects: 0 })).status()).not.toBe(200);
+  await comprador.context().close();
+  await outro.context().close();
 
   // US09 — histórico com o código do dossiê.
   await page.getByRole("link", { name: /Ver histórico \(1\)/ }).click();
@@ -110,7 +112,7 @@ test("RN03: editar o polígono torna a análise obsoleta e impede novo dossiê c
   // Renomear não muda o polígono: a análise continua valendo.
   await page.goto(urlPropriedade);
   await page.getByRole("link", { name: "Editar — Talhão RN03" }).click();
-  await expect(page.getByText("Clique para marcar os cantos do talhão.")).toBeVisible({ timeout: 60_000 });
+  await esperarEditor(page);
   await page.getByLabel("Nome do talhão").fill("Talhão RN03 renomeado");
   await page.getByRole("button", { name: "Salvar talhão" }).click();
   await expect(page).toHaveURL(urlPropriedade, { timeout: 60_000 });

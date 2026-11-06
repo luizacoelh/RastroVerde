@@ -30,8 +30,15 @@ export function lerHa(texto: string): number {
 }
 
 /** Na tela de novo talhão (ou de edição), importa um GeoJSON de e2e/fixtures e salva. */
+/** Editor pronto: na criação pede o desenho; na edição, o ajuste dos vértices. */
+export async function esperarEditor(page: Page) {
+  await expect(
+    page.getByText(/Clique para marcar os cantos do talhão\.|Arraste os vértices para ajustar\./).first(),
+  ).toBeVisible({ timeout: 60_000 });
+}
+
 export async function importarTalhao(page: Page, arquivo: string, nome: string) {
-  await expect(page.getByText("Clique para marcar os cantos do talhão.")).toBeVisible({ timeout: 60_000 });
+  await esperarEditor(page);
   await page.getByLabel("Arquivo GeoJSON do talhão").setInputFiles(path.join(FIXTURES, arquivo));
   await expect(page.getByText(`Importado ${arquivo}`)).toBeVisible();
   await expect(page.getByText("Arraste os vértices para ajustar.")).toBeVisible({ timeout: 30_000 });
