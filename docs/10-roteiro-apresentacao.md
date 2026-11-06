@@ -24,7 +24,7 @@
 - [ ] Celular com câmera para ler o QR code, na mesma rede ou com 4G.
 - [ ] Abas abertas: a propriedade de demonstração e `/verificar`.
 - [ ] Plano B sem internet: capturas em [`evidencias/producao/`](evidencias/producao/) e o
-      [dossiê de exemplo](evidencias/dossie-exemplo-pagina1.png).
+      [PDF do dossiê emitido em produção](evidencias/producao/dossie-RV-2026-7VATD6.pdf).
 - [ ] Lembrar: **todo dossiê emitido em produção é permanente** e trava a exclusão da
       propriedade (RN04). Use uma propriedade só para a demo, por exemplo "Fazenda Demonstração".
 

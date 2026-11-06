@@ -100,7 +100,7 @@ públicas foram abertas num navegador headless, sem login.
 | P-06 | Importar o GeoJSON do Pivô 1 | Polígono no mapa, 112,66 ha | "Importado … (112,66 ha)" | Passou |
 | P-07 | Analisar o Pivô 1 | Risco alto, mesmo resultado do teste local | **Risco alto, 16,47 ha (14,62%), 2 alertas** (31/07/2022 e 28/07/2021) | Passou |
 | P-08 | Gerar o dossiê do Pivô 1 | Dossiê emitido com resumo da IA | `RV-2026-7VATD6`, "Resumo redigido por IA (Gemini)" | Passou |
-| P-09 | Baixar o PDF (bytes lidos na sessão, sem gravar arquivo) | `application/pdf`, começa com `%PDF-` | 200, `application/pdf`, 13.058 bytes, `%PDF-` | Passou |
+| P-09 | Baixar o PDF | `application/pdf`, começa com `%PDF-` | 200, `application/pdf`, 13.058 bytes, `%PDF-`. Baixado de novo depois pelo botão **Baixar dossiê PDF**: mesmo hash da página de verificação ([arquivo](evidencias/producao/dossie-RV-2026-7VATD6.pdf), [página 1](evidencias/producao/25-dossie-pdf-pagina1.png)) | Passou |
 | P-10 | Endereço impresso ao lado do QR code | `https://rastroverde.vercel.app/verificar/RV-2026-7VATD6` | Igual (extraído do conteúdo do PDF) | Passou |
 | P-11 | Aviso legal e resumo da IA no PDF | Presentes | Presentes | Passou |
 | P-12 | Abrir `/verificar/RV-2026-7VATD6` | "Dossiê autêntico", sem dados pessoais | Correto; mostra cultura, município, risco, áreas, base e hash | Passou |

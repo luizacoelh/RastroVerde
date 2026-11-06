@@ -120,9 +120,9 @@ O PDF tem uma página com:
 - a fonte e a versão dos dados e a data;
 - o QR code e o aviso legal.
 
-![Exemplo de dossiê](evidencias/dossie-exemplo-pagina1.png)
+![Dossiê emitido em produção](evidencias/producao/25-dossie-pdf-pagina1.png)
 
-*Exemplo gerado localmente com a mesma base PRODES de produção e um resumo real do Gemini. Os dados são de um talhão de teste.*
+*Dossiê `RV-2026-7VATD6`, emitido em produção para um talhão de teste ([PDF original](evidencias/producao/dossie-RV-2026-7VATD6.pdf)).*
 
 Cada análise gera **um** dossiê. Para um dossiê novo, por exemplo depois de mudar o desenho, faça uma nova análise.
 
