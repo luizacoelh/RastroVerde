@@ -5,7 +5,7 @@ Dossiê de conformidade socioambiental para exportação agrícola (EUDR — Reg
 O produtor cadastra o talhão, o sistema cruza o polígono com alertas de desmatamento posteriores a
 31/12/2020 e gera um dossiê em PDF com QR code verificável pelo comprador.
 
-> Status: **Sprint 3** — dossiê PDF com QR code, resumo por IA e verificação pública.
+> Status: **MVP em produção** em https://rastroverde.vercel.app — entregáveis da Avaliação 2 em `docs/07` a `docs/10`.
 
 ## Como rodar
 
