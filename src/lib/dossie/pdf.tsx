@@ -232,6 +232,6 @@ export function DocumentoDossie({ c }: { c: ConteudoDossie }) {
 }
 
 /** Gera os bytes do PDF. */
-export async function gerarPdf(c: ConteudoDossie): Promise<Uint8Array> {
-  return new Uint8Array(await renderToBuffer(<DocumentoDossie c={c} />));
+export async function gerarPdf(c: ConteudoDossie): Promise<Uint8Array<ArrayBuffer>> {
+  return Uint8Array.from(await renderToBuffer(<DocumentoDossie c={c} />));
 }
