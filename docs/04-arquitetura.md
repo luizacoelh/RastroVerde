@@ -32,7 +32,7 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
   2020 (opção conservadora; ver README).
 - **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10). O cliente chama a API
   REST do Gemini com `fetch` (sem SDK), com timeout de 8 s, modelo configurável (`GEMINI_MODEL`,
-  padrão `gemini-flash-latest`) e só dados não pessoais. Sem `GEMINI_API_KEY`, com erro ou com
+  padrão `gemini-3.5-flash-lite`, fixo e rápido) e só dados não pessoais. Sem `GEMINI_API_KEY`, com erro ou com
   resposta fora do formato (vazia ou longa demais), entra o texto padrão montado com os números da análise.
 - **ADR-05 — Supabase como PostgreSQL gerenciado.** Substitui o Neon (decisão da PO, 04/11/2026).
   Usado só como banco Postgres via Prisma: a aplicação conecta pelo *pooler* (`DATABASE_URL`,

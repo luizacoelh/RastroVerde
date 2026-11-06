@@ -8,7 +8,9 @@ import type { Risco } from "@/lib/risco";
 
 export const MAX_PALAVRAS_RESUMO = 120;
 export const TIMEOUT_IA_MS = 8_000;
-export const MODELO_PADRAO = "gemini-flash-latest";
+// Modelo fixo (não um apelido "latest"): resposta em menos de 1 s e versão previsível. Em 06/11/2026 os
+// modelos "flash" maiores davam 503 (alta demanda) ou passavam de 8 s; um resumo curto não precisa deles.
+export const MODELO_PADRAO = "gemini-3.5-flash-lite";
 
 export type DadosResumo = {
   risco: Risco;
@@ -60,15 +62,33 @@ export function textoPadrao(d: DadosResumo): string {
   );
 }
 
+/** Sentido aprovado de cada risco, para a IA não exagerar (ex.: "não pode vender", "atende ao EUDR"). */
+const SIGNIFICADO_RISCO: Record<Risco, string> = {
+  BAIXO:
+    "não foi encontrado desmatamento detectado após 31/12/2020 dentro do talhão. Isso cobre só o critério de " +
+    "desmatamento do EUDR; outros requisitos, como a legalidade da produção, não são avaliados aqui.",
+  ATENCAO:
+    "há uma sobreposição pequena com desmatamento detectado após 31/12/2020. Antes de exportar, é preciso " +
+    "conferir no mapa se o alerta está mesmo dentro da área plantada ou se é só a borda do polígono.",
+  ALTO:
+    "há sobreposição com desmatamento detectado após 31/12/2020 acima dos limites de atenção. Sem uma " +
+    "justificativa documentada, o produto desta área não cumpre o critério de desmatamento do EUDR.",
+};
+
 /** Instrução e dados enviados ao Gemini. */
 export function montarPrompt(d: DadosResumo): { sistema: string; usuario: string } {
   const sistema =
     "Você escreve o resumo de um dossiê de conformidade com o regulamento europeu de produtos livres " +
     "de desmatamento (EUDR) para um produtor rural brasileiro e para o comprador. Escreva em português " +
-    `do Brasil, em linguagem simples, em um único parágrafo de no máximo ${MAX_PALAVRAS_RESUMO} palavras, ` +
-    "sem títulos, listas, markdown ou emojis. Use somente os dados fornecidos; não invente números, " +
-    "datas, causas nem recomendações jurídicas. Explique o que o risco significa e mencione a data de " +
-    "corte de 31/12/2020. Não diga que o produto está certificado ou aprovado.";
+    "do Brasil, em linguagem simples, em um único parágrafo de 60 a 90 palavras (nunca mais de " +
+    `${MAX_PALAVRAS_RESUMO}), sem títulos, listas, markdown ou emojis. Comece pelo resultado: o risco e o ` +
+    "significado dele, usando o sentido dado nos dados, sem exagerar. Se houver sobreposição, diga a área " +
+    "sobreposta em hectares e em porcentagem do talhão e os anos em que os alertas foram detectados. " +
+    "Mencione a data de corte de 31/12/2020 e a base de alertas usada. Escreva números e datas com " +
+    "algarismos (ex.: 31/12/2020, 16,47 ha). Não repita a regra de classificação nem descreva o talhão em " +
+    "detalhes. Use somente os dados fornecidos; não invente números, datas, termos, causas nem " +
+    "recomendações jurídicas. A análise cobre só o critério de desmatamento do EUDR: não diga que o " +
+    "produto atende ao EUDR, que pode ou não pode ser vendido, nem que está certificado, aprovado ou isento.";
   const alertas = d.alertas.length
     ? d.alertas.map((a) => `- detectado em ${formatarDataIso(a.dataDeteccao)}, ${formatarHa(a.areaHa)} dentro do talhão`).join("\n")
     : "- nenhum";
@@ -80,6 +100,7 @@ export function montarPrompt(d: DadosResumo): { sistema: string; usuario: string
     `Área sobreposta a desmatamento após 31/12/2020: ${formatarHa(d.areaSobrepostaHa)} (${formatarPercentual(d.percentual)} do talhão)`,
     `Alertas após 31/12/2020 dentro do talhão:\n${alertas}`,
     `Risco calculado: ${{ BAIXO: "baixo", ATENCAO: "atenção", ALTO: "alto" }[d.risco]}`,
+    `O que o risco significa: ${SIGNIFICADO_RISCO[d.risco]}`,
     "Regra do risco: baixo = sem sobreposição; atenção = menos de 1% da área e menos de 0,5 ha; alto = demais casos.",
   ].join("\n");
   return { sistema, usuario };

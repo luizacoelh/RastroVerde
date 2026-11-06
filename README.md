@@ -100,7 +100,7 @@ o risco e o hash SHA-256 do PDF e permite ao comprador conferir o arquivo no pr�
 |---|---|
 | `APP_URL` | Endereço público gravado no QR code (em produção, a URL da Vercel). Vazio: usa o endereço da requisição. |
 | `GEMINI_API_KEY` | Opcional. Chave do [Google AI Studio](https://aistudio.google.com/apikey) para o resumo em linguagem simples. Sem ela, o dossiê usa o texto padrão. |
-| `GEMINI_MODEL` | Opcional. Padrão: `gemini-flash-latest`. |
+| `GEMINI_MODEL` | Opcional. Padrão: `gemini-3.5-flash-lite` (rápido; os modelos maiores davam 503 ou passavam do timeout de 8 s). |
 
 A chave fica só no servidor (`.env` local e variáveis de ambiente da Vercel), nunca no Git.
 

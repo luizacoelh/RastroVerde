@@ -52,7 +52,9 @@ describe("textoPadrao", () => {
 describe("montarPrompt", () => {
   it("só leva dados não pessoais da análise (RNF06)", () => {
     const { sistema, usuario } = montarPrompt(ALTO);
-    expect(sistema).toContain(`${MAX_PALAVRAS_RESUMO} palavras`);
+    expect(sistema).toContain(`nunca mais de ${MAX_PALAVRAS_RESUMO}`);
+    expect(sistema).toContain("não diga que o produto atende ao EUDR");
+    expect(usuario).toContain("Sem uma justificativa documentada");
     expect(usuario).toContain("31/07/2022");
     expect(usuario).toContain("Risco calculado: alto");
     expect(usuario).not.toMatch(/@|nome do produtor|propriedade:/i);
