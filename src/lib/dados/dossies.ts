@@ -2,11 +2,12 @@
 import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
-import { obterUltimaAnalise } from "@/lib/dados/analises";
+import { conferirMunicipioDoTalhao, obterUltimaAnalise } from "@/lib/dados/analises";
 import { obterPropriedade, obterTalhao } from "@/lib/dados/propriedades";
 import { calcularHash, gerarCodigo, montarConteudo, type ConteudoDossie } from "@/lib/dossie/conteudo";
 import { gerarPdf } from "@/lib/dossie/pdf";
 import { gerarResumo } from "@/lib/dossie/resumo";
+import { mensagemMunicipioDivergente } from "@/lib/geo/municipio";
 
 /** RN04: mensagens exibidas quando a exclusão é bloqueada por dossiê emitido. */
 export const MOTIVO_BLOQUEIO_TALHAO =
@@ -51,6 +52,13 @@ export async function emitirDossie(
   }
   const existente = await db.dossie.findUnique({ where: { analiseId: analise.id }, select: { codigo: true } });
   if (existente) return { ok: true, codigo: existente.codigo };
+
+  // Defeito 8: confere de novo na emissão, porque o município da propriedade pode ter sido
+  // editado depois da análise; o dossiê grava e mostra o município ao comprador.
+  const conferencia = await conferirMunicipioDoTalhao(talhao, propriedade);
+  if (conferencia.situacao === "diverge") {
+    return { ok: false, erro: mensagemMunicipioDivergente(conferencia.encontrado, propriedade, "dossie") };
+  }
 
   const resumo = await gerarResumo(
     {
