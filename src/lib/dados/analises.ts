@@ -127,3 +127,25 @@ export async function riscosDosTalhoes(usuarioId: string, propriedadeId: string)
   for (const a of analises) if (!riscos.has(a.talhaoId)) riscos.set(a.talhaoId, a.risco);
   return riscos;
 }
+
+/** US09: todas as análises do talhão, da mais recente para a mais antiga, com o dossiê emitido. */
+export async function listarAnalises(usuarioId: string, talhaoId: string) {
+  return db.analise.findMany({
+    where: { talhaoId, talhao: { propriedade: { usuarioId } } },
+    orderBy: { criadaEm: "desc" },
+    select: {
+      id: true,
+      criadaEm: true,
+      risco: true,
+      areaSobrepostaHa: true,
+      percentual: true,
+      obsoleta: true,
+      base: { select: { fonte: true, versao: true } },
+      dossie: { select: { codigo: true, emitidoEm: true } },
+    },
+  });
+}
+
+export async function contarAnalises(usuarioId: string, talhaoId: string) {
+  return db.analise.count({ where: { talhaoId, talhao: { propriedade: { usuarioId } } } });
+}
