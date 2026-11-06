@@ -201,24 +201,25 @@ export function EditorTalhao({ inicial, outros, cobertura, onChange }: PropsEdit
           emitir();
         });
 
-        const enquadramento: FeatureCollection = {
-          type: "FeatureCollection",
-          features: [...outrosGeo.features],
-        };
-
         if (inicialGeo?.type === "Polygon") {
           const id = crypto.randomUUID();
           draw.addFeatures([{ id, type: "Feature", geometry: inicialGeo, properties: { mode: "polygon" } }]);
           draw.setMode("select");
           draw.selectFeature(id);
           setModo("editando");
-          enquadramento.features.push({ type: "Feature", properties: {}, geometry: inicialGeo });
         } else {
-          if (inicialGeo) enquadramento.features.push({ type: "Feature", properties: {}, geometry: inicialGeo });
           draw.setMode("polygon");
           setModo("desenhando");
         }
-        enquadrar(m, enquadramento);
+        // Com talhão (edição ou importação), o mapa mostra só ele: os outros talhões podem estar
+        // longe e deixá-lo do tamanho de um ponto. Sem talhão, mostra os da propriedade como
+        // referência para desenhar o novo.
+        enquadrar(
+          m,
+          inicialGeo
+            ? { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: inicialGeo }] }
+            : outrosGeo,
+        );
         emitir();
       });
     })();
