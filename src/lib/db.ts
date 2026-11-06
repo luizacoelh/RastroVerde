@@ -15,3 +15,8 @@ function criarCliente() {
 export const db = globalForPrisma.prisma ?? criarCliente();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+
+/** Erro do Prisma por violação de chave estrangeira (ex.: dossiê emitido barra a exclusão, RN04). */
+export function violouChaveEstrangeira(erro: unknown): boolean {
+  return typeof erro === "object" && erro !== null && (erro as { code?: unknown }).code === "P2003";
+}

@@ -3,7 +3,9 @@
 import * as z from "zod";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
-import { db } from "@/lib/db";
+import type { ResultadoExclusao } from "@/components/botao-excluir";
+import { MOTIVO_BLOQUEIO_PROPRIEDADE, contarDossies } from "@/lib/dados/dossies";
+import { db, violouChaveEstrangeira } from "@/lib/db";
 import { usuarioAtual } from "@/lib/dal";
 import { esquemaPropriedade, valoresDoFormulario, type EstadoFormulario } from "@/lib/validacao";
 
@@ -41,10 +43,17 @@ export async function atualizarPropriedade(
   redirect(`/propriedades/${id}`);
 }
 
-export async function excluirPropriedade(id: string) {
+export async function excluirPropriedade(id: string): Promise<ResultadoExclusao> {
   const usuario = await usuarioAtual();
-  // Talhões são excluídos em cascata (onDelete: Cascade).
-  const { count } = await db.propriedade.deleteMany({ where: { id, usuarioId: usuario.id } });
+  // RN04: os talhões seriam excluídos em cascata, então dossiê emitido bloqueia a propriedade.
+  if ((await contarDossies(usuario.id, id)) > 0) return { erro: MOTIVO_BLOQUEIO_PROPRIEDADE };
+  let count: number;
+  try {
+    ({ count } = await db.propriedade.deleteMany({ where: { id, usuarioId: usuario.id } }));
+  } catch (e) {
+    if (violouChaveEstrangeira(e)) return { erro: MOTIVO_BLOQUEIO_PROPRIEDADE };
+    throw e;
+  }
   if (count === 0) notFound();
 
   revalidatePath("/propriedades");

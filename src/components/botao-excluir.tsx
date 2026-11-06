@@ -3,18 +3,39 @@
 import { useState, useTransition } from "react";
 import { classeBotao } from "@/components/ui";
 
-/** Botão de exclusão com confirmação na própria tela (sem diálogo do navegador). */
+export type ResultadoExclusao = { erro?: string } | void;
+
+/**
+ * Botão de exclusão com confirmação na própria tela (sem diálogo do navegador).
+ * Com `bloqueio`, o botão fica desativado e o motivo aparece ao lado (ex.: RN04).
+ */
 export function BotaoExcluir({
   acao,
   rotulo = "Excluir",
   confirmacao,
+  bloqueio,
 }: {
-  acao: () => Promise<void>;
+  acao: () => Promise<ResultadoExclusao>;
   rotulo?: string;
   confirmacao: string;
+  bloqueio?: string;
 }) {
   const [confirmando, setConfirmando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
+
+  if (bloqueio || erro) {
+    return (
+      <div className="flex max-w-md flex-wrap items-center gap-2">
+        <button type="button" className={classeBotao.perigo} disabled aria-describedby="motivo-bloqueio">
+          {rotulo}
+        </button>
+        <p id="motivo-bloqueio" role={erro ? "alert" : undefined} className="text-sm text-stone-700">
+          {erro ?? bloqueio}
+        </p>
+      </div>
+    );
+  }
 
   if (!confirmando) {
     return (
@@ -31,7 +52,15 @@ export function BotaoExcluir({
         type="button"
         className={classeBotao.confirmarExclusao}
         disabled={pendente}
-        onClick={() => iniciar(() => acao())}
+        onClick={() =>
+          iniciar(async () => {
+            const resultado = await acao();
+            if (resultado?.erro) {
+              setConfirmando(false);
+              setErro(resultado.erro);
+            }
+          })
+        }
         autoFocus
       >
         {pendente ? "Excluindo…" : "Sim, excluir"}
