@@ -28,6 +28,8 @@ export default function prepararBanco() {
       "Dados fictícios (teste)",
       "--versao",
       "e2e-1",
+      "--descricao-cobertura",
+      "a área de teste fictícia (BA)",
       "--pular-se-existir",
     ],
     { cwd: RAIZ, stdio: "inherit", env: { ...process.env, DIRECT_URL: url } },
