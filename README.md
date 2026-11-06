@@ -73,7 +73,8 @@ para o Git.
    ```bash
    npm run alertas:importar -- --arquivo dados/prodes-cerrado-lem-sao-desiderio.geojson \
      --cobertura dados/ibge/2919553.geojson --cobertura dados/ibge/2928901.geojson \
-     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid      --descricao-cobertura "Luís Eduardo Magalhães e São Desidério (BA)"
+     --fonte "PRODES Cerrado (INPE)" --versao 2026-10-16 --campo-data image_date --campo-codigo uuid \
+     --descricao-cobertura "Luís Eduardo Magalhães e São Desidério (BA)"
    ```
    A `--descricao-cobertura` é o texto que o usuário vê quando o talhão cai fora da base. Para
    corrigir a descrição de uma base já importada, rode o mesmo comando com `--pular-se-existir`:
