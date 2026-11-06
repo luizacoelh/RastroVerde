@@ -30,7 +30,10 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
   do MapBiomas Alerta estava fora do ar. O PRODES é anual (agosto a julho): a data de detecção é a
   `image_date`, e o PRODES 2021 conta como posterior ao corte, mesmo incluindo agosto a dezembro de
   2020 (opção conservadora; ver README).
-- **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10).
+- **ADR-04 — IA opcional.** O resumo por IA nunca bloqueia o PDF (RNF10). O cliente chama a API
+  REST do Gemini com `fetch` (sem SDK), com timeout de 8 s, modelo configurável (`GEMINI_MODEL`,
+  padrão `gemini-flash-latest`) e só dados não pessoais. Sem `GEMINI_API_KEY`, com erro ou com
+  resposta fora do formato (vazia ou longa demais), entra o texto padrão montado com os números da análise.
 - **ADR-05 — Supabase como PostgreSQL gerenciado.** Substitui o Neon (decisão da PO, 04/11/2026).
   Usado só como banco Postgres via Prisma: a aplicação conecta pelo *pooler* (`DATABASE_URL`,
   modo *transaction*, porta 6543) e as migrações usam o pooler em modo *session* (`DIRECT_URL`,
@@ -40,6 +43,11 @@ Diagramas em Mermaid (renderizam direto no GitHub). Estilo inspirado no modelo *
   políticas em todas as tabelas, inclusive a `_prisma_migrations` do próprio Prisma (nega o acesso
   pela API; o Prisma conecta como dono e não é afetado). Toda tabela nova deve vir com
   `ENABLE ROW LEVEL SECURITY` na mesma migração.
+- **ADR-07 — Dossiê guardado, não regenerado.** O PDF é gerado uma vez (`@react-pdf/renderer`,
+  QR code vetorial com `qrcode`) e gravado no banco (`DOSSIE.pdf`), junto com uma cópia dos dados
+  usados (`DOSSIE.conteudo`). O hash SHA-256 é o dos bytes guardados; regenerar o PDF depois daria
+  outro arquivo. A chave estrangeira `dossie → analise` é `RESTRICT`, então o banco também impede
+  excluir talhão ou propriedade com dossiê (RN04). O mapa do PDF é vetorial, sem mapa de fundo.
 - **ADR-06 — Next.js sem Cache Components.** O `create-next-app` 16 liga `cacheComponents`; no MVP
   ele fica desligado porque todas as telas dependem da sessão do usuário. Usamos renderização
   dinâmica e a checagem otimista de sessão no `src/proxy.ts` (antigo middleware).
@@ -212,7 +220,10 @@ erDiagram
     string analiseId FK
     string codigo UK
     string hash
-    string resumoIA
+    string resumo
+    boolean resumoPorIA
+    json conteudo
+    bytes pdf
     datetime emitidoEm
   }
 ```
@@ -228,9 +239,17 @@ Notas de implementação (`prisma/schema.prisma`):
 - `ANALISE.sobreposicao` guarda um FeatureCollection com a interseção de cada alerta (código, data
   de detecção, área); a área total é a da união delas, para não contar alertas sobrepostos duas vezes.
 
+- `DOSSIE` é imutável (RN04): guarda o PDF, o hash SHA-256 dele, o resumo (IA ou texto padrão) e
+  em `conteudo` uma cópia dos dados da emissão, usada pela página pública `/verificar/{codigo}`.
+  O código tem o formato `RV-AAAA-XXXXXX` (alfabeto de Crockford, sem letras ambíguas).
+
 Fluxo da importação (US13): `scripts/importar-alertas.ts` → `src/lib/alertas/importacao.ts`
 (validação) → banco. Fluxo da análise: `src/lib/dados/analises.ts` (bases e alertas com bbox que
 cruza o do talhão) → `src/lib/geo/analise.ts` (Turf.js, código puro e testado) → `ANALISE`.
+Fluxo do dossiê (US10–US12): `src/lib/dados/dossies.ts` (análise atual do dono) →
+`src/lib/dossie/resumo.ts` (Gemini ou texto padrão) → `conteudo.ts` (código, cópia dos dados) →
+`pdf.tsx` + `desenho.ts` (PDF, mapa e QR code) → hash → `DOSSIE`. Download em
+`/dossies/{codigo}/pdf` (só o dono); verificação pública em `/verificar/{codigo}`.
 
 ## 4.6 Sequência — análise e dossiê
 
