@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { obterTalhao } from "@/lib/dados/propriedades";
 import { DATA_CORTE_EUDR, analisarSobreposicao, talhaoCoberto, type Risco, type Sobreposicao } from "@/lib/geo/analise";
 import type { GeometriaTalhao } from "@/lib/geo/talhao";
+import { riscoMaisGrave } from "@/lib/risco";
 
 export type ResultadoExecucao = { ok: true; analiseId: string } | { ok: false; motivo: "sem-dados" };
 
@@ -84,6 +85,35 @@ export async function temAnaliseObsoleta(usuarioId: string, talhaoId: string) {
     where: { talhaoId, obsoleta: true, talhao: { propriedade: { usuarioId } } },
   });
   return qtd > 0;
+}
+
+export type RiscoPropriedade = { risco: Risco; analisadaEm: Date; talhoesAnalisados: number };
+
+/**
+ * Lista de propriedades (wireframe 2): para cada propriedade, o risco mais grave entre as últimas
+ * análises válidas dos talhões e a data da análise mais recente. Propriedade sem análise fica fora.
+ */
+export async function riscosDasPropriedades(usuarioId: string): Promise<Map<string, RiscoPropriedade>> {
+  const ultimas = await db.analise.findMany({
+    where: { obsoleta: false, talhao: { propriedade: { usuarioId } } },
+    orderBy: [{ talhaoId: "asc" }, { criadaEm: "desc" }],
+    distinct: ["talhaoId"],
+    select: { risco: true, criadaEm: true, talhao: { select: { propriedadeId: true } } },
+  });
+  const porPropriedade = new Map<string, { riscos: Risco[]; analisadaEm: Date }>();
+  for (const a of ultimas) {
+    const atual = porPropriedade.get(a.talhao.propriedadeId);
+    if (!atual) porPropriedade.set(a.talhao.propriedadeId, { riscos: [a.risco], analisadaEm: a.criadaEm });
+    else {
+      atual.riscos.push(a.risco);
+      if (a.criadaEm > atual.analisadaEm) atual.analisadaEm = a.criadaEm;
+    }
+  }
+  const resultado = new Map<string, RiscoPropriedade>();
+  for (const [id, { riscos, analisadaEm }] of porPropriedade) {
+    resultado.set(id, { risco: riscoMaisGrave(riscos)!, analisadaEm, talhoesAnalisados: riscos.length });
+  }
+  return resultado;
 }
 
 /** Risco da última análise válida de cada talhão da propriedade. */
