@@ -1,0 +1,39 @@
+# npm run lint
+> rastroverde@0.1.0 lint
+> eslint
+
+
+# npm run typecheck
+
+Generating route types...
+✓ Types generated successfully
+
+# npm run build
+  Finished TypeScript in 6.9s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/9) ...
+  Generating static pages using 3 workers (2/9) 
+  Generating static pages using 3 workers (4/9) 
+  Generating static pages using 3 workers (6/9) 
+✓ Generating static pages using 3 workers (9/9) in 327ms
+  Finalizing page optimization ...
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/auth/[...nextauth]
+├ ○ /cadastro
+├ ƒ /dossies/[codigo]/pdf
+├ ƒ /login
+├ ƒ /propriedades
+├ ƒ /propriedades/[id]
+├ ƒ /propriedades/[id]/editar
+├ ƒ /propriedades/[id]/talhoes/[talhaoId]
+├ ƒ /propriedades/[id]/talhoes/[talhaoId]/analise
+├ ƒ /propriedades/[id]/talhoes/[talhaoId]/analise/historico
+├ ƒ /propriedades/[id]/talhoes/novo
+├ ƒ /propriedades/nova
+├ ƒ /verificar
+└ ƒ /verificar/[codigo]
+ƒ Proxy (Middleware)
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

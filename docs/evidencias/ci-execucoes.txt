@@ -1,0 +1,18 @@
+Execuções do workflow CI (GitHub Actions), consultadas em 06/11/2026 pela API do GitHub
+total: 14
+
+data/hora (UTC)   | evento        | branch                     | resultado
+2026-11-06 14:52 | push          | main                       | success
+2026-11-06 14:46 | pull_request  | feat/cobertura-visivel     | success
+2026-11-06 14:35 | push          | main                       | success
+2026-11-06 10:14 | pull_request  | fix/modelo-gemini          | success
+2026-11-06 09:16 | push          | main                       | success
+2026-11-06 08:58 | pull_request  | feat/dossie                | success
+2026-11-06 05:50 | push          | main                       | success
+2026-11-06 03:54 | pull_request  | feat/base-prodes           | success
+2026-11-06 03:44 | push          | main                       | success
+2026-11-05 18:54 | pull_request  | fix/rls-prisma-migrations  | success
+2026-11-05 18:25 | push          | main                       | success
+2026-11-05 18:19 | pull_request  | feat/analise-desmatamento  | success
+2026-11-05 17:33 | push          | main                       | success
+2026-11-05 17:32 | pull_request  | feat/setup                 | success

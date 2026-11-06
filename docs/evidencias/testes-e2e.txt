@@ -1,0 +1,12 @@
+Base: Dados fictícios (teste) e2e-1
+Cobertura: a área de teste fictícia (BA)
+Alertas válidos: 3 (2 detectados após 31/12/2020)
+A base Dados fictícios (teste) e2e-1 já foi importada em 2026-11-06T07:59:47.980Z. Nada a fazer.
+Running 6 tests using 1 worker
+  ✓  1 [chromium] › e2e\analise.spec.ts:17:5 › importa GeoJSON, analisa e mostra risco Atenção com a sobreposição em vermelho (22.6s)
+  ✓  2 [chromium] › e2e\analise.spec.ts:61:5 › talhão fora da cobertura da base: região sem dados, sem risco calculado (16.4s)
+  ✓  3 [chromium] › e2e\dossie.spec.ts:20:5 › gera o dossiê, verifica pelo QR code sem login e confere o hash do PDF (37.1s)
+  ✓  4 [chromium] › e2e\dossie.spec.ts:107:5 › RN03: editar o polígono torna a análise obsoleta e impede novo dossiê com ela (26.2s)
+  ✓  5 [chromium] › e2e\talhao.spec.ts:34:5 › desenha um talhão de ~5 ha com vértices visíveis, desfazer e Esc (33.1s)
+  ✓  6 [chromium] › e2e\talhao.spec.ts:126:5 › editar talhão enquadra só ele, mesmo com outro talhão longe (defeito 7) (19.1s)
+  6 passed (2.9m)
