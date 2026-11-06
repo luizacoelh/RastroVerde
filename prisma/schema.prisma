@@ -155,3 +155,21 @@ model Dossie {
 
   @@map("dossie")
 }
+
+/// Limites oficiais dos municípios (malha do IBGE), usados para conferir se o talhão está no
+/// município declarado na propriedade (defeito 8). Dado de referência, importado por script.
+model Municipio {
+  /// Código IBGE de 7 dígitos (ex.: 2919553)
+  codigoIbge String @id @db.Char(7)
+  nome       String
+  uf         String @db.Char(2)
+  /// GeoJSON Polygon/MultiPolygon do limite municipal
+  geometria  Json
+  bboxMinLng Float
+  bboxMinLat Float
+  bboxMaxLng Float
+  bboxMaxLat Float
+
+  @@index([bboxMinLng, bboxMaxLng, bboxMinLat, bboxMaxLat])
+  @@map("municipio")
+}
