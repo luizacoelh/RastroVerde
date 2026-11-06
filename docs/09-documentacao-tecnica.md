@@ -100,6 +100,9 @@ schema, em `prisma/schema.prisma`. Pontos da implementação:
   indexadas, para o filtro prévio da análise.
 - **`base_alertas`** tem `fonte` + `versao` únicos, a `cobertura` (polígono do recorte) e a
   `descricaoCobertura`, que é só texto para o usuário.
+- **`municipio`** guarda o limite oficial de cada município (código IBGE, nome, UF e polígono),
+  importado por `npm run municipios:importar`. A análise e a emissão do dossiê conferem se o
+  talhão tem área no município declarado (RN05, `src/lib/geo/municipio.ts`).
 - **`analise.obsoleta`** implementa a RN03; o histórico nunca é apagado.
 - **`dossie`** guarda `pdf` (bytes), `hash`, `resumo`, `resumoPorIA` e `conteudo` (cópia dos
   dados). A chave estrangeira para `analise` é `RESTRICT`, então o próprio banco impede excluir o
@@ -116,6 +119,7 @@ Migrações aplicadas em produção (`prisma/migrations`):
 | `20261116000000_rls_prisma_migrations` | RLS na tabela de controle do Prisma |
 | `20261125000000_dossie_imutavel` | PDF, cópia dos dados e resumo no dossiê; FK `RESTRICT` |
 | `20261201000000_descricao_cobertura` | Descrição da área coberta |
+| `20261202000000_municipio` | Limites dos municípios (IBGE) para a RN05, com RLS |
 
 ## 6. Decisões de arquitetura
 
@@ -140,6 +144,10 @@ Outras decisões tomadas durante a implementação:
 - **Área sobreposta = união** das interseções, para não contar duas vezes alertas que se sobrepõem.
   Sobreposições menores que 1 m² são ruído.
 - **Cobertura com tolerância de 0,1%** da área, para bordas arredondadas dos limites municipais.
+- **Município declarado conferido pelo polígono (RN05):** sem isso, um talhão de LEM/BA saía num
+  dossiê como "Uruçuí/PI" (defeito 8). O bloqueio vale na análise e de novo na emissão, porque a
+  propriedade pode ser editada entre uma e outra. Talhão na divisa passa se encostar no município
+  declarado.
 - **Risco da propriedade** = o do talhão mais crítico, considerando a última análise de cada um.
 - **Mapa do PDF vetorial**, sem mapa de fundo: gerado no servidor, sem depender de tiles.
 - **Modelo `gemini-3.5-flash-lite`:** o apelido `gemini-flash-latest` passava do timeout de 8 s. O
@@ -198,6 +206,12 @@ Em resumo:
      --descricao-cobertura "Luís Eduardo Magalhães e São Desidério (BA)"
    ```
 
+4. Importar os limites dos municípios cobertos (usados na RN05):
+   ```bash
+   npm run municipios:importar -- --arquivo dados/ibge/2919553.geojson --nome "Luís Eduardo Magalhães" --uf BA
+   npm run municipios:importar -- --arquivo dados/ibge/2928901.geojson --nome "São Desidério" --uf BA
+   ```
+
 Cada fonte/versão é importada uma única vez. Para atualizar os dados, importe uma versão nova; as
 análises antigas continuam apontando para a versão que usaram.
 
@@ -229,7 +243,7 @@ do merge. Resultados: [07-plano-e-relatorio-de-testes.md](07-plano-e-relatorio-d
 - A base cobre só **Luís Eduardo Magalhães e São Desidério (BA)**; fora dela, "região sem dados".
 - O mapa do PDF não tem imagem de satélite nem mapa de fundo.
 - O E2E não roda no CI.
-- O município da propriedade é texto livre e não é conferido com a localização do talhão. Um
-  dossiê pode mostrar ao comprador um município diferente do real (defeito 8 do relatório de
-  testes, aberto).
+- O município da propriedade ainda é texto livre. A conferência com o talhão (RN05) só funciona
+  onde há limite municipal importado (hoje, LEM e São Desidério, os mesmos da base de alertas).
+  Escolher o município numa lista do IBGE fica para o pós-MVP.
 - Sem limite de tentativas de login (registrado como pós-MVP).

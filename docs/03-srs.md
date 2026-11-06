@@ -102,6 +102,7 @@ redigir o resumo do dossiê.
 | RN02 | Um dossiê só pode ser gerado a partir de uma análise concluída. |
 | RN03 | Editar o polígono de um talhão invalida as análises anteriores para novos dossiês (o histórico é mantido). |
 | RN04 | Dossiês emitidos são imutáveis; o hash garante que o conteúdo não foi alterado. Um talhão com dossiê emitido não pode ser excluído (nem a propriedade dele, que o excluiria em cascata). |
+| RN05 | O talhão precisa ter área no município declarado na propriedade (limites do IBGE), senão a análise e a emissão do dossiê são bloqueadas: o dossiê mostra o município ao comprador. O nome é comparado sem acentos nem maiúsculas. *Incluída após o defeito 8 do relatório de testes.* |
 
 ### Notas de implementação do dossiê (Sprint 3)
 - **RF15 — imagem do mapa:** desenho vetorial do talhão e das sobreposições, com norte e barra de

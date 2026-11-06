@@ -40,6 +40,8 @@ O RastroVerde só guarda seu nome e seu e-mail, e eles **nunca** aparecem para o
 
 1. Em **Minhas propriedades**, clique em **+ Nova propriedade**.
 2. Informe o nome da fazenda, o município, o estado (UF) e a cultura.
+   Informe o município **onde ficam os talhões**: o sistema confere pelo mapa e não analisa um
+   talhão que esteja fora do município cadastrado, porque o dossiê mostra esse município ao comprador.
 3. O número do **CAR** é opcional. Se tiver, copie como está no recibo.
 4. Clique em **Cadastrar**.
 
@@ -173,6 +175,10 @@ autêntico.
 por satélite. Confira no mapa onde fica a área vermelha. Se o desenho do talhão pegou mata vizinha,
 ajuste o polígono e analise de novo. Se o desmatamento for anterior ao corte ou tiver
 justificativa, guarde a documentação junto com o dossiê.
+
+**Apareceu "O talhão fica em …, mas a propriedade está cadastrada em …".** O desenho do talhão está
+em outro município. Corrija o município da propriedade (botão **Editar** na página da propriedade)
+ou o desenho do talhão e analise de novo. Acentos e maiúsculas não importam.
 
 **Posso usar o dossiê como declaração oficial do EUDR?** Não. Ele é uma evidência técnica para o
 comprador; a declaração de diligência é responsabilidade do operador que exporta.

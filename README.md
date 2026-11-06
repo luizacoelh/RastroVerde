@@ -26,6 +26,7 @@ npm run dev                # http://localhost:3000
 | `npm run test:e2e` | Playwright: desenho e importação de talhão, análise, dossiê, verificação pública, RN03 e RN04 |
 | `npm run build` | Build de produção |
 | `npm run alertas:importar` | Importa uma base de alertas de desmatamento (veja abaixo) |
+| `npm run municipios:importar` | Importa o limite de um município (IBGE), usado na conferência do município declarado |
 | `npm run db:migrate` | Cria uma nova migração a partir do `prisma/schema.prisma` (desenvolvimento) |
 
 O CI (`.github/workflows/ci.yml`) roda lint, typecheck, testes e build em todo PR.
@@ -79,6 +80,13 @@ para o Git.
    A `--descricao-cobertura` é o texto que o usuário vê quando o talhão cai fora da base. Para
    corrigir a descrição de uma base já importada, rode o mesmo comando com `--pular-se-existir`:
    só a descrição muda, os alertas e a cobertura não.
+
+5. **Municípios** — os limites do IBGE também servem para conferir se o talhão está no município
+   declarado na propriedade (RN05). Importe cada município coberto pela base:
+   ```bash
+   npm run municipios:importar -- --arquivo dados/ibge/2919553.geojson --nome "Luís Eduardo Magalhães" --uf BA
+   npm run municipios:importar -- --arquivo dados/ibge/2928901.geojson --nome "São Desidério" --uf BA
+   ```
 
 **Data de corte com o PRODES.** O ano PRODES Y cobre o desmatamento entre as imagens de meados
 de Y−1 e as de meados de Y (aproximadamente agosto a julho). No recorte, as imagens do ano Y são

@@ -2,8 +2,8 @@
 
 | Item | Valor |
 |---|---|
-| Versão | 1.1 — 06/11/2026 (E2E-06, leitura do QR code com o celular e defeito 8) |
-| Versão testada | Unitários, lint e build: `main` em `0909469` (merge do PR #7). E2E: branch do PR #9 em `dc9b9b5` (`main` + correção do defeito 7) |
+| Versão | 1.2 — 06/11/2026 (correção do defeito 8: E2E-07 e unitários do município) |
+| Versão testada | Unitários, E2E, lint e build: branch `fix/municipio-declarado` em `328922f` (`main` com os PRs #8 e #9 + correção do defeito 8). Teste manual em produção: versão publicada em 06/11, antes dessa correção |
 | Produção | https://rastroverde.vercel.app (Vercel, funções em `pdx1`; Supabase `us-west-2`) |
 | Evidências | [`docs/evidencias/`](evidencias/) |
 
@@ -35,9 +35,9 @@ do merge de cada sprint; fluxo principal funcionando em produção.
 
 | Execução | Resultado | Evidência |
 |---|---|---|
-| Testes unitários (`npm run test:coverage`) | **132 de 132 passaram**, 12 arquivos | [`testes-unitarios.txt`](evidencias/testes-unitarios.txt), [`testes-unitarios-lista.txt`](evidencias/testes-unitarios-lista.txt) |
-| Cobertura em `src/lib/geo` (RNF12, mínimo 70%) | 96,53% instruções · 92,68% ramos · 92,3% funções · 98,61% linhas | [`testes-unitarios.txt`](evidencias/testes-unitarios.txt) |
-| Testes E2E (`npm run test:e2e`) | **6 de 6 passaram** (2,9 min) | [`testes-e2e.txt`](evidencias/testes-e2e.txt), [`e2e/`](evidencias/e2e/) |
+| Testes unitários (`npm run test:coverage`) | **144 de 144 passaram**, 13 arquivos | [`testes-unitarios.txt`](evidencias/testes-unitarios.txt), [`testes-unitarios-lista.txt`](evidencias/testes-unitarios-lista.txt) |
+| Cobertura em `src/lib/geo` (RNF12, mínimo 70%) | 96,85% instruções · 92,7% ramos · 93,75% funções · 98,72% linhas | [`testes-unitarios.txt`](evidencias/testes-unitarios.txt) |
+| Testes E2E (`npm run test:e2e`) | **7 de 7 passaram** (4,4 min) | [`testes-e2e.txt`](evidencias/testes-e2e.txt), [`e2e/`](evidencias/e2e/) |
 | Lint, typecheck e build | Sem erros nem avisos | [`lint-typecheck-build.txt`](evidencias/lint-typecheck-build.txt) |
 | CI no GitHub Actions | **14 de 14 execuções com sucesso** (7 PRs e 7 pushes na `main`) | [`ci-execucoes.txt`](evidencias/ci-execucoes.txt) |
 | Teste manual em produção | **18 de 18 casos passaram**; 2 defeitos encontrados (seção 6, defeitos 7 e 8) | [`producao/`](evidencias/producao/) |
@@ -53,13 +53,16 @@ do merge de cada sprint; fluxo principal funcionando em produção.
 | E2E-03 | Talhão fora da cobertura: "Região sem dados", sem risco. A mensagem diz o que a base cobre; o editor mostra a área coberta, com legenda e "Ver área coberta" | UC4 (exceção) | Passou |
 | E2E-04 | Gera o dossiê (resumo padrão, sem chave do Gemini), baixa o PDF e confere a assinatura `%PDF-`. Abre `/verificar/{codigo}` **sem login**: "Dossiê autêntico", hash igual ao SHA-256 do arquivo baixado e nenhum nome, e-mail ou nome da propriedade na página. A conferência do arquivo aceita o original e recusa um PDF com 1 byte alterado. Código em minúsculas e código inexistente tratados. **Outro usuário recebe 404** ao pedir o PDF. Histórico mostra o código do dossiê. Excluir talhão e propriedade fica **bloqueado**. Lista de propriedades mostra o risco | RF14–RF18, RF13, RF20, RN04, RNF06, RNF10, wireframe 2 | Passou |
 | E2E-05 | Renomear o talhão mantém a análise; trocar o polígono a torna **obsoleta**, some o botão "Gerar dossiê PDF", o histórico mostra "Obsoleta" e a lista de propriedades fica sem risco | RN03, RN02, RF13 | Passou |
+| E2E-07 | Propriedade declarada em Uruçuí/PI com talhão no município de teste "Luís Eduardo Magalhães/BA": a análise é **bloqueada** com a mensagem de município divergente e sem risco. Corrigido o município (digitado sem acento), a análise passa. Trocado de novo para Uruçuí/PI depois da análise, a **emissão do dossiê** também é bloqueada. Com o código anterior à correção, o teste falhou | RN05, RF15, RF18, defeito 8 | Passou |
 | E2E-06 | Propriedade com dois talhões a ~195 km; ao editar um deles, o mapa enquadra só ele (largura visível < 5 km). Com o código anterior à correção, o teste falhou: o mapa mostrava ~215 km | RF08, defeito 7 | Passou |
 
 Capturas geradas pelos testes: [`evidencias/e2e/`](evidencias/e2e/), por exemplo
 [`resultado-com-dossie.png`](evidencias/e2e/resultado-com-dossie.png),
 [`verificacao.png`](evidencias/e2e/verificacao.png) e
 [`analise-obsoleta.png`](evidencias/e2e/analise-obsoleta.png) e
-[`editar-enquadrado.png`](evidencias/e2e/editar-enquadrado.png). Elas usam a conta "Teste E2E",
+[`editar-enquadrado.png`](evidencias/e2e/editar-enquadrado.png), além de
+[`analise-bloqueada.png`](evidencias/e2e/analise-bloqueada.png) e
+[`dossie-bloqueado.png`](evidencias/e2e/dossie-bloqueado.png) (E2E-07). Elas usam a conta "Teste E2E",
 criada pelo próprio teste num banco local.
 
 ### 3.2 Unitários (Vitest)
@@ -74,13 +77,14 @@ criada pelo próprio teste num banco local.
 | `geo/analise.test.ts` › talhaoCoberto, formatarPercentual | 7 | UC4 (tolerância de 0,1%), RF11 |
 | `alertas/importacao.test.ts` | 21 | RF19 (datas em vários formatos, descartes com motivo, reparo de auto-interseção, cobertura) |
 | `cobertura.test.ts` | 3 | UC4 (mensagem com os municípios cobertos) |
+| `geo/municipio.test.ts` | 12 | RN05 (nome sem acento ou maiúsculas, UF diferente, talhão na divisa, município de maior área, sem limite conhecido, borda < 1 m², mensagens) |
 | `dossie/resumo.test.ts` | 15 | RF16, RNF10 (texto padrão ≤ 120 palavras, sem dados pessoais no prompt, chave só no cabeçalho, queda para o padrão em HTTP 429, erro de rede, resposta vazia e timeout) |
 | `dossie/conteudo.test.ts` | 7 | RF15, RF17 (formato do código, SHA-256, URL de verificação, cópia dos dados sem e-mail) |
 | `dossie/desenho.test.ts` | 5 | RF15 (mapa enquadrado com norte para cima, barra de escala), US12 (QR code igual ao da biblioteca `qrcode`) |
 | `dossie/pdf.test.tsx` | 3 | RF14, RF15 (PDF com e sem alertas e com 20 alertas) |
 | `validacao.test.ts` | 14 | RF01, RF03 (esquemas de formulário, redirecionamento interno seguro) |
 | `risco.test.ts`, `formato.test.ts` | 4 | Risco da propriedade (wireframe 2), datas no horário de Brasília |
-| **Total** | **132** | |
+| **Total** | **144** | |
 
 Lista completa, teste a teste: [`testes-unitarios-lista.txt`](evidencias/testes-unitarios-lista.txt).
 
@@ -133,19 +137,20 @@ conta no cabeçalho foi ocultado por CSS antes da captura; nenhum outro conteúd
 | RF13 (histórico) | E2E-04, E2E-05 | Captura [10](evidencias/producao/10-historico.jpg) | |
 | RF14–RF15 (PDF e conteúdo) | E2E-04, 15 unitários | P-08 a P-11 | |
 | RF16 / RNF10 (resumo por IA e texto padrão) | 15 unitários; E2E-04 sem chave (texto padrão) | P-08 (IA real) | |
-| RF17–RF18 (código, hash, verificação) | E2E-04, 7 unitários | P-12 a P-14, P-18 | A verificação pode exibir um município falso (defeito 8) |
+| RF17–RF18 (código, hash, verificação) | E2E-04, E2E-07, 7 unitários | P-12 a P-14, P-18 | Dois dossiês de teste emitidos antes da correção mostram município falso (defeito 8) |
 | RF19 (importação da base) | 21 unitários | Base PRODES importada no Supabase em 06/11 | |
 | RF20 / RNF04 (dono dos dados) | E2E-04 (outro usuário recebe 404 no PDF) | P-02 | As demais rotas filtram pelo dono no código; só a do PDF tem teste com 2 usuários |
 | RN01 (data de corte) | Unitários de análise; E2E-02 (alerta de 2019 ignorado) | P-07 (alertas de 2021 e 2022 contam) | |
 | RN02–RN03 (dossiê só da análise atual) | E2E-05 | — | |
 | RN04 (dossiê imutável, exclusão bloqueada) | E2E-04 | P-16 | |
+| RN05 (talhão no município declarado) | E2E-07, 12 unitários | — | Em produção depois do merge, da migração `municipio` e da importação dos limites |
 | RNF01 (análise ≤ 5 s em talhão ≤ 1.000 ha) | — | — | Medido por script local com a base PRODES: 60–82 ms por análise de talhões de ~1.000 ha. **Não há teste automatizado de desempenho** |
 | RNF02 (PDF ≤ 10 s com IA) | — | P-08 | O dossiê ficou pronto dentro da espera de 10 s do teste, sem cronometragem precisa. A chamada ao Gemini (`gemini-3.5-flash-lite`) levou de 1,2 a 1,6 s em 8 chamadas reais feitas localmente |
 | RNF05 (HTTPS; chaves no servidor) | — | P-01 a P-17 em HTTPS | A chave do Gemini vai em cabeçalho, nunca na URL (teste unitário) |
 | RNF06 (sem dados pessoais na verificação) | E2E-04 | P-12 | |
 | RNF08 (responsivo a partir de 360 px) | — | P-17 | Só a página de verificação foi testada a 360 px |
 | RNF09 (risco por cor e texto) | E2E-02/04 procuram o texto "Risco …" | Capturas 08 e 11 | |
-| RNF12 (cobertura ≥ 70% em geo) | Cobertura no CI | — | 96,53% de instruções |
+| RNF12 (cobertura ≥ 70% em geo) | Cobertura no CI | — | 96,85% de instruções |
 | RNF14 (aviso legal) | — | P-11 | |
 
 ## 6. Defeitos e achados
@@ -159,7 +164,11 @@ conta no cabeçalho foi ocultado por CSS antes da captura; nenhum outro conteúd
 | 5 | O resumo da IA exagerava ("impedimento de venda", "atende às exigências") | Teste com a API real | Corrigido: prompt com o sentido aprovado de cada risco (PR #6) |
 | 6 | Talhão fora da cobertura não sabia onde havia dados | Uso real (talhões fora de LEM e São Desidério) | Corrigido (PR #7), coberto pelo E2E-03 |
 | 7 | Ao editar um talhão, o mapa enquadra **todos** os talhões da propriedade. Com dois pivôs a ~50 km um do outro, o talhão editado aparece como um ponto ([captura 07](evidencias/producao/07-editar-talhao.jpg)) | Teste em produção, 06/11 | Corrigido no PR #9: o mapa enquadra só o talhão editado. Coberto pelo E2E-06 |
-| 8 | **O município declarado não é conferido com a localização do polígono.** Dois dossiês foram emitidos em produção para propriedades cadastradas como Uruçuí/PI (`RV-2026-GF9S4N`) e "Urucui"/PI (`RV-2026-JY61A8`), com talhões cujo centroide fica em Luís Eduardo Magalhães/BA (limites do IBGE). O PDF e a página pública mostram ao comprador o município declarado, que é falso ([captura](evidencias/producao/24-qr-code-celular.jpg)). O município também é texto livre: no banco há grafias diferentes para o mesmo lugar | Leitura do QR code (P-18) e consulta somente leitura ao banco, 06/11 | **Aberto**. Proposta de correção em discussão com a PO |
+| 8 | **O município declarado não é conferido com a localização do polígono.** Dois dossiês foram emitidos em produção para propriedades cadastradas como Uruçuí/PI (`RV-2026-GF9S4N`) e "Urucui"/PI (`RV-2026-JY61A8`), com talhões cujo centroide fica em Luís Eduardo Magalhães/BA (limites do IBGE). O PDF e a página pública mostram ao comprador o município declarado, que é falso ([captura](evidencias/producao/24-qr-code-celular.jpg)). O município também é texto livre: no banco há grafias diferentes para o mesmo lugar | Leitura do QR code (P-18) e consulta somente leitura ao banco, 06/11 | Corrigido no PR #10: a análise e a emissão do dossiê são bloqueadas quando o talhão não tem área no município declarado (limites do IBGE; nome comparado sem acento nem maiúsculas). Coberto pelo E2E-07 e por 12 unitários |
+
+Os dossiês `RV-2026-GF9S4N` e `RV-2026-JY61A8` (defeito 8) são **dados de teste** emitidos antes da
+correção e ficam como estão. São imutáveis e o banco impede apagá-los (RN04). As páginas de
+verificação deles continuam mostrando Uruçuí/PI.
 
 O dossiê `RV-2026-7VATD6`, emitido em produção antes do PR #6 entrar no ar, tem o resumo feito com
 o prompt anterior. O texto está correto, mas fica gravado assim, porque o dossiê é imutável.

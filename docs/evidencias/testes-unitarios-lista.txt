@@ -1,5 +1,5 @@
- ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0 ha e 0% BAIXO → undefined 5ms
- ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0.00005 ha e 0.00004% BAIXO → undefined 1ms
+ ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0 ha e 0% BAIXO → undefined 4ms
+ ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0.00005 ha e 0.00004% BAIXO → undefined 0ms
  ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0.3 ha e 0.25% ATENCAO → undefined 0ms
  ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0.49 ha e 0.99% ATENCAO → undefined 1ms
  ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0.5 ha e 0.4% ALTO → undefined 0ms
@@ -7,10 +7,20 @@
  ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 0.3 ha e 2.5% ALTO → undefined 0ms
  ✓ src/lib/geo/analise.test.ts > classificarRisco (RF10) > 12 ha e 10% ALTO → undefined 0ms
  ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > sem alertas → Baixo 4ms
- ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > alerta no canto, depois do corte → Atenção com a área da interseção 68ms
- ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > RN01: ignora alertas até 31/12/2020 e conta a partir de 01/01/2021 10ms
- ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > alertas sobrepostos entre si não contam a área duas vezes 18ms
- ✓ src/lib/dossie/resumo.test.ts > textoPadrao > BAIXO: cita corte, base e fica dentro do limite 4ms
+ ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > alerta no canto, depois do corte → Atenção com a área da interseção 17ms
+ ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > RN01: ignora alertas até 31/12/2020 e conta a partir de 01/01/2021 9ms
+ ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > alertas sobrepostos entre si não contam a área duas vezes 10ms
+ ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > alerta fora do talhão ou só encostando na borda → Baixo 2ms
+ ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > aceita talhão MultiPolygon e alerta MultiPolygon 4ms
+ ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > ordena as sobreposições da maior para a menor 12ms
+ ✓ src/lib/geo/analise.test.ts > talhaoCoberto (UC4) > talhão dentro da cobertura 1ms
+ ✓ src/lib/geo/analise.test.ts > talhaoCoberto (UC4) > talhão fora ou parcialmente fora → região sem dados 11ms
+ ✓ src/lib/geo/analise.test.ts > talhaoCoberto (UC4) > cobertura com dois municípios vizinhos 2ms
+ ✓ src/lib/geo/analise.test.ts > formatarPercentual > 0 → 0% 0ms
+ ✓ src/lib/geo/analise.test.ts > formatarPercentual > 0.004 → < 0,01% 0ms
+ ✓ src/lib/geo/analise.test.ts > formatarPercentual > 0.25 → 0,25% 0ms
+ ✓ src/lib/geo/analise.test.ts > formatarPercentual > 50 → 50% 0ms
+ ✓ src/lib/dossie/resumo.test.ts > textoPadrao > BAIXO: cita corte, base e fica dentro do limite 5ms
  ✓ src/lib/dossie/resumo.test.ts > textoPadrao > ATENCAO: cita corte, base e fica dentro do limite 1ms
  ✓ src/lib/dossie/resumo.test.ts > textoPadrao > ALTO: cita corte, base e fica dentro do limite 1ms
  ✓ src/lib/dossie/resumo.test.ts > textoPadrao > ALTO lista os anos dos alertas e a área 1ms
@@ -20,80 +30,80 @@
  ✓ src/lib/dossie/resumo.test.ts > ajustarTextoIA > corta na última frase completa dentro do limite 0ms
  ✓ src/lib/dossie/resumo.test.ts > ajustarTextoIA > texto longo sem ponto → null 1ms
  ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > sem chave → texto padrão, sem chamar a rede 3ms
- ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > com chave → texto da IA, chave no cabeçalho e não na URL 45ms
- ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > HTTP 429 → texto padrão 1ms
+ ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > com chave → texto da IA, chave no cabeçalho e não na URL 62ms
+ ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > HTTP 429 → texto padrão 2ms
  ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > erro de rede → texto padrão 1ms
  ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > resposta vazia → texto padrão 1ms
- ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > tempo esgotado → texto padrão 61ms
- ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > alerta fora do talhão ou só encostando na borda → Baixo 2ms
- ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > aceita talhão MultiPolygon e alerta MultiPolygon 3ms
- ✓ src/lib/geo/analise.test.ts > analisarSobreposicao (RF09) > ordena as sobreposições da maior para a menor 6ms
- ✓ src/lib/geo/analise.test.ts > talhaoCoberto (UC4) > talhão dentro da cobertura 3ms
- ✓ src/lib/geo/analise.test.ts > talhaoCoberto (UC4) > talhão fora ou parcialmente fora → região sem dados 17ms
- ✓ src/lib/geo/analise.test.ts > talhaoCoberto (UC4) > cobertura com dois municípios vizinhos 2ms
- ✓ src/lib/geo/analise.test.ts > formatarPercentual > 0 → 0% 9ms
- ✓ src/lib/geo/analise.test.ts > formatarPercentual > 0.004 → < 0,01% 0ms
- ✓ src/lib/geo/analise.test.ts > formatarPercentual > 0.25 → 0,25% 0ms
- ✓ src/lib/geo/analise.test.ts > formatarPercentual > 50 → 50% 0ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 2023-05-10 → 2023-05-10 5ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 2023-05-10T13:45:00Z → 2023-05-10 1ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 2023/05/10 → 2023-05-10 1ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 20230510 → 2023-05-10 1ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 20230510 → 2023-05-10 1ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 10/05/2023 → 2023-05-10 1ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao >  2021-01-01  → 2021-01-01 1ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 2023-02-30 0ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa abc 1ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 2023 0ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa null 0ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa  0ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 1900-01-01 0ms
- ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 12.5 0ms
- ✓ src/lib/alertas/importacao.test.ts > prepararAlertas (RF19) > normaliza alertas válidos, repara auto-interseção e descarta os inválidos com motivo 22ms
- ✓ src/lib/alertas/importacao.test.ts > prepararAlertas (RF19) > código vazio vira null e descarta altitude 1ms
- ✓ src/lib/alertas/importacao.test.ts > prepararAlertas (RF19) > recusa arquivo que não é GeoJSON 0ms
- ✓ src/lib/alertas/importacao.test.ts > repararGeometria > anéis que só se tocam num vértice mantêm a área 8ms
- ✓ src/lib/alertas/importacao.test.ts > prepararCobertura > une municípios vizinhos em uma geometria 2ms
- ✓ src/lib/alertas/importacao.test.ts > prepararCobertura > aceita um único polígono 0ms
- ✓ src/lib/alertas/importacao.test.ts > prepararCobertura > recusa cobertura sem polígonos ou com coordenadas inválidas 0ms
- ✓ src/lib/validacao.test.ts > esquemaCadastro > normaliza e-mail e aceita senha de 8 caracteres 12ms
- ✓ src/lib/validacao.test.ts > esquemaCadastro > recusa senha curta e e-mail inválido (RF01) 5ms
- ✓ src/lib/validacao.test.ts > esquemaPropriedade > aceita propriedade sem CAR (vira null) 8ms
+ ✓ src/lib/dossie/resumo.test.ts > gerarResumo (RNF10) > tempo esgotado → texto padrão 62ms
+ ✓ src/lib/geo/municipio.test.ts > normalizarNomeMunicipio > Uruçuí → urucui 4ms
+ ✓ src/lib/geo/municipio.test.ts > normalizarNomeMunicipio >  URUCUI  → urucui 1ms
+ ✓ src/lib/geo/municipio.test.ts > normalizarNomeMunicipio > Luís Eduardo  Magalhães → luis eduardo magalhaes 0ms
+ ✓ src/lib/geo/municipio.test.ts > normalizarNomeMunicipio > Pau-d'Arco → pau d arco 1ms
+ ✓ src/lib/geo/municipio.test.ts > conferirMunicipio (defeito 8) > confere com o município declarado, ignorando acento e maiúsculas 12ms
+ ✓ src/lib/geo/municipio.test.ts > conferirMunicipio (defeito 8) > diverge quando o talhão está em outro município e informa onde ele está 3ms
+ ✓ src/lib/geo/municipio.test.ts > conferirMunicipio (defeito 8) > mesmo nome em outra UF não confere 3ms
+ ✓ src/lib/geo/municipio.test.ts > conferirMunicipio (defeito 8) > talhão na divisa é aceito em qualquer dos dois municípios 14ms
+ ✓ src/lib/geo/municipio.test.ts > conferirMunicipio (defeito 8) > na divisa e declarado em terceiro município: aponta o de maior área 6ms
+ ✓ src/lib/geo/municipio.test.ts > conferirMunicipio (defeito 8) > sem limite conhecido no lugar: desconhecido (não bloqueia; vira região sem dados) 1ms
+ ✓ src/lib/geo/municipio.test.ts > conferirMunicipio (defeito 8) > encostar só na borda (área < 1 m²) não conta 4ms
+ ✓ src/lib/geo/municipio.test.ts > mensagemMunicipioDivergente > análise e dossiê dizem o que aconteceu e como corrigir 1ms
+ ✓ src/lib/validacao.test.ts > esquemaCadastro > normaliza e-mail e aceita senha de 8 caracteres 13ms
+ ✓ src/lib/validacao.test.ts > esquemaCadastro > recusa senha curta e e-mail inválido (RF01) 2ms
+ ✓ src/lib/validacao.test.ts > esquemaPropriedade > aceita propriedade sem CAR (vira null) 3ms
  ✓ src/lib/validacao.test.ts > esquemaPropriedade > mantém o CAR informado 1ms
  ✓ src/lib/validacao.test.ts > esquemaPropriedade > recusa UF e cultura fora da lista 1ms
  ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > /propriedades/abc → /propriedades/abc 0ms
- ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > http://localhost:3000/propriedades/abc?x=1 → /propriedades/abc?x=1 0ms
+ ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > http://localhost:3000/propriedades/abc?x=1 → /propriedades/abc?x=1 1ms
  ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > https://malicioso.com → / 0ms
  ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > https://malicioso.com//outro.com → /propriedades 1ms
  ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > javascript:alert(1) → /propriedades 0ms
  ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > //malicioso.com → /propriedades 0ms
  ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > /\malicioso.com → /propriedades 0ms
  ✓ src/lib/validacao.test.ts > caminhoInternoSeguro > null → /propriedades 0ms
- ✓ src/lib/validacao.test.ts > valoresDoFormulario > lê só os campos pedidos e troca ausentes por string vazia 64ms
- ✓ src/lib/dossie/pdf.test.tsx > gerarPdf (US10) > risco alto com alertas 508ms
- ✓ src/lib/dossie/pdf.test.tsx > gerarPdf (US10) > risco baixo sem alertas 310ms
- ✓ src/lib/dossie/conteudo.test.ts > código do dossiê > formato RV-AAAA-XXXXXX sem letras ambíguas 33ms
- ✓ src/lib/dossie/conteudo.test.ts > código do dossiê > sorteio determinístico 1ms
- ✓ src/lib/dossie/conteudo.test.ts > código do dossiê > normaliza o que o comprador digitar 1ms
- ✓ src/lib/dossie/conteudo.test.ts > hash e URL > SHA-256 em hexadecimal 6ms
- ✓ src/lib/dossie/conteudo.test.ts > hash e URL > URL de verificação sem barra dupla 0ms
- ✓ src/lib/dossie/conteudo.test.ts > hash e URL > coordenada com hemisfério 0ms
- ✓ src/lib/dossie/conteudo.test.ts > montarConteudo > congela os dados da emissão, com centroide e alertas 12ms
- ✓ src/lib/dossie/pdf.test.tsx > gerarPdf (US10) > muitos alertas (tabela limitada) 188ms
- ✓ src/lib/dossie/desenho.test.ts > enquadrar > cabe na área com margem e mantém a proporção 5ms
- ✓ src/lib/dossie/desenho.test.ts > enquadrar > norte para cima: latitude maior → y menor 2ms
- ✓ src/lib/dossie/desenho.test.ts > caminhoGeometria > um subcaminho fechado por anel 3ms
+ ✓ src/lib/validacao.test.ts > valoresDoFormulario > lê só os campos pedidos e troca ausentes por string vazia 40ms
+ ✓ src/lib/dossie/pdf.test.tsx > gerarPdf (US10) > risco alto com alertas 362ms
+ ✓ src/lib/dossie/desenho.test.ts > enquadrar > cabe na área com margem e mantém a proporção 4ms
+ ✓ src/lib/dossie/desenho.test.ts > enquadrar > norte para cima: latitude maior → y menor 1ms
+ ✓ src/lib/dossie/desenho.test.ts > caminhoGeometria > um subcaminho fechado por anel 2ms
  ✓ src/lib/dossie/desenho.test.ts > barraDeEscala > comprimento redondo de até 1/4 da largura 2ms
- ✓ src/lib/dossie/desenho.test.ts > caminhoQRCode > um quadrado por módulo escuro, com borda 134ms
- ✓ src/lib/formato.test.ts > formato > data ISO sem fuso 3ms
- ✓ src/lib/formato.test.ts > formato > data e hora no horário de Brasília 0ms
- ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > aceita um polígono simples e calcula área e bbox 6ms
+ ✓ src/lib/dossie/desenho.test.ts > caminhoQRCode > um quadrado por módulo escuro, com borda 23ms
+ ✓ src/lib/dossie/pdf.test.tsx > gerarPdf (US10) > risco baixo sem alertas 144ms
+ ✓ src/lib/dossie/pdf.test.tsx > gerarPdf (US10) > muitos alertas (tabela limitada) 173ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 2023-05-10 → 2023-05-10 14ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 2023-05-10T13:45:00Z → 2023-05-10 2ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 2023/05/10 → 2023-05-10 0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 20230510 → 2023-05-10 1ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 20230510 → 2023-05-10 0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > 10/05/2023 → 2023-05-10 1ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao >  2021-01-01  → 2021-01-01 0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 2023-02-30 0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa abc 2ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 2023 0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa null 0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa  0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 1900-01-01 0ms
+ ✓ src/lib/alertas/importacao.test.ts > lerDataDeteccao > recusa 12.5 0ms
+ ✓ src/lib/alertas/importacao.test.ts > prepararAlertas (RF19) > normaliza alertas válidos, repara auto-interseção e descarta os inválidos com motivo 42ms
+ ✓ src/lib/alertas/importacao.test.ts > prepararAlertas (RF19) > código vazio vira null e descarta altitude 1ms
+ ✓ src/lib/alertas/importacao.test.ts > prepararAlertas (RF19) > recusa arquivo que não é GeoJSON 0ms
+ ✓ src/lib/alertas/importacao.test.ts > repararGeometria > anéis que só se tocam num vértice mantêm a área 16ms
+ ✓ src/lib/alertas/importacao.test.ts > prepararCobertura > une municípios vizinhos em uma geometria 3ms
+ ✓ src/lib/alertas/importacao.test.ts > prepararCobertura > aceita um único polígono 1ms
+ ✓ src/lib/alertas/importacao.test.ts > prepararCobertura > recusa cobertura sem polígonos ou com coordenadas inválidas 0ms
+ ✓ src/lib/dossie/conteudo.test.ts > código do dossiê > formato RV-AAAA-XXXXXX sem letras ambíguas 24ms
+ ✓ src/lib/dossie/conteudo.test.ts > código do dossiê > sorteio determinístico 1ms
+ ✓ src/lib/dossie/conteudo.test.ts > código do dossiê > normaliza o que o comprador digitar 0ms
+ ✓ src/lib/dossie/conteudo.test.ts > hash e URL > SHA-256 em hexadecimal 1ms
+ ✓ src/lib/dossie/conteudo.test.ts > hash e URL > URL de verificação sem barra dupla 0ms
+ ✓ src/lib/dossie/conteudo.test.ts > hash e URL > coordenada com hemisfério 1ms
+ ✓ src/lib/dossie/conteudo.test.ts > montarConteudo > congela os dados da emissão, com centroide e alertas 3ms
+ ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > aceita um polígono simples e calcula área e bbox 7ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa polígono com auto-interseção (gravata-borboleta) 1ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa polígono não fechado 0ms
- ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa anel com menos de 3 vértices 0ms
+ ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa anel com menos de 3 vértices 1ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa área abaixo de 0,1 ha 1ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa área acima de 10.000 ha 1ms
- ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > aceita perto dos limites 8ms
+ ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > aceita perto dos limites 1ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa coordenadas fora de WGS 84 0ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa geometria inválida: null 1ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa geometria inválida: "texto" 0ms
@@ -107,28 +117,30 @@
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > aceita MultiPolygon e soma as áreas 1ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > recusa MultiPolygon com uma parte inválida 0ms
  ✓ src/lib/geo/talhao.test.ts > validarGeometriaTalhao > aceita polígono com furo 0ms
- ✓ src/lib/geo/talhao.test.ts > formatarHa > usa vírgula decimal e separador de milhar do pt-BR 2ms
- ✓ src/lib/geo/talhao.test.ts > calcularCentroide (RF15) > centro de um quadrado, nos dois sentidos de giro 1ms
+ ✓ src/lib/geo/talhao.test.ts > formatarHa > usa vírgula decimal e separador de milhar do pt-BR 0ms
+ ✓ src/lib/geo/talhao.test.ts > calcularCentroide (RF15) > centro de um quadrado, nos dois sentidos de giro 2ms
  ✓ src/lib/geo/talhao.test.ts > calcularCentroide (RF15) > buraco descentralizado desloca o centroide para o outro lado 0ms
  ✓ src/lib/geo/talhao.test.ts > calcularCentroide (RF15) > MultiPolygon pondera pela área 0ms
- ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > aceita FeatureCollection 7ms
- ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > aceita Feature 3ms
+ ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > aceita FeatureCollection 6ms
+ ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > aceita Feature 1ms
  ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > aceita Geometry 1ms
  ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > aceita crs CRS84 (QGIS) 1ms
  ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > ignora feições que não são polígonos 1ms
- ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa texto que não é JSON 0ms
+ ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa texto que não é JSON 1ms
  ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa JSON sem tipo 0ms
  ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa sem polígono 0ms
- ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa dois polígonos 2ms
+ ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa dois polígonos 1ms
  ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa outro sistema de coordenadas 1ms
- ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa coordenadas UTM sem crs 0ms
+ ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa coordenadas UTM sem crs 1ms
  ✓ src/lib/geo/geojson.test.ts > lerTalhaoGeoJSON (RF07) > recusa polígono que se cruza 1ms
  ✓ src/lib/geo/geojson.test.ts > listarFeicoes > devolve propriedades de cada feição 2ms
  ✓ src/lib/geo/geojson.test.ts > listarFeicoes > recusa entradas que não são objetos 0ms
- ✓ src/lib/cobertura.test.ts > mensagemRegiaoSemDados (UC4) > cita os municípios da base 4ms
- ✓ src/lib/cobertura.test.ts > mensagemRegiaoSemDados (UC4) > várias bases, sem repetir descrições iguais nem vazias 1ms
- ✓ src/lib/cobertura.test.ts > mensagemRegiaoSemDados (UC4) > base sem descrição: remete ao mapa 1ms
- ✓ src/lib/risco.test.ts > riscoMaisGrave > devolve o pior risco 5ms
- ✓ src/lib/risco.test.ts > riscoMaisGrave > lista vazia → null 2ms
- Test Files  12 passed (12)
-      Tests  132 passed (132)
+ ✓ src/lib/risco.test.ts > riscoMaisGrave > devolve o pior risco 3ms
+ ✓ src/lib/risco.test.ts > riscoMaisGrave > lista vazia → null 0ms
+ ✓ src/lib/cobertura.test.ts > mensagemRegiaoSemDados (UC4) > cita os municípios da base 2ms
+ ✓ src/lib/cobertura.test.ts > mensagemRegiaoSemDados (UC4) > várias bases, sem repetir descrições iguais nem vazias 0ms
+ ✓ src/lib/cobertura.test.ts > mensagemRegiaoSemDados (UC4) > base sem descrição: remete ao mapa 0ms
+ ✓ src/lib/formato.test.ts > formato > data ISO sem fuso 2ms
+ ✓ src/lib/formato.test.ts > formato > data e hora no horário de Brasília 0ms
+ Test Files  13 passed (13)
+      Tests  144 passed (144)

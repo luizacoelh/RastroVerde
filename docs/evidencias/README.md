@@ -1,13 +1,13 @@
 # Evidências de teste
 
 Arquivos citados no [Plano e Relatório de Testes](../07-plano-e-relatorio-de-testes.md). Todos
-foram gerados em 06/11/2026: unitários, lint e build na `main` em `0909469`; E2E na branch do PR #9.
+foram gerados em 06/11/2026 na branch `fix/municipio-declarado` em `328922f`, exceto as capturas de produção.
 
 | Arquivo | O que é |
 |---|---|
-| `testes-unitarios.txt` | Saída de `npm run test:coverage` (132 testes e a tabela de cobertura) |
+| `testes-unitarios.txt` | Saída de `npm run test:coverage` (144 testes e a tabela de cobertura) |
 | `testes-unitarios-lista.txt` | Saída de `vitest --reporter=verbose`: cada teste unitário pelo nome |
-| `testes-e2e.txt` | Saída de `npm run test:e2e` (6 testes Playwright, banco local com a base fictícia), na branch do PR #9 em `dc9b9b5` |
+| `testes-e2e.txt` | Saída de `npm run test:e2e` (7 testes Playwright, banco local com a base fictícia), na branch `fix/municipio-declarado` em `328922f` |
 | `lint-typecheck-build.txt` | Saída de `npm run lint`, `npm run typecheck` e `npm run build` |
 | `ci-execucoes.txt` | Execuções do workflow CI no GitHub Actions, consultadas pela API do GitHub |
 | `e2e/` | Capturas feitas pelos testes E2E (conta "Teste E2E", banco local, base fictícia) |
