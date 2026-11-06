@@ -2,18 +2,11 @@
 // Usa a base FICTÍCIA de e2e/fixtures, importada pelo setup global (US13).
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
-import { criarContaEPropriedade, lerHa } from "./auxiliares";
-
-const FIXTURES = path.join(__dirname, "fixtures");
+import { FIXTURES, criarContaEPropriedade, importarTalhao as importarNaTela, lerHa } from "./auxiliares";
 
 async function importarTalhao(page: Page, arquivo: string, nome: string) {
   await page.getByRole("link", { name: "+ Desenhar talhão" }).click();
-  await expect(page.getByText("Clique para marcar os cantos do talhão.")).toBeVisible({ timeout: 60_000 });
-  await page.getByLabel("Arquivo GeoJSON do talhão").setInputFiles(path.join(FIXTURES, arquivo));
-  await expect(page.getByText(`Importado ${arquivo}`)).toBeVisible();
-  await expect(page.getByText("Arraste os vértices para ajustar.")).toBeVisible({ timeout: 30_000 });
-  await page.getByLabel("Nome do talhão").fill(nome);
-  await page.getByRole("button", { name: "Salvar talhão" }).click();
+  await importarNaTela(page, arquivo, nome);
 }
 
 test.beforeEach(() => {

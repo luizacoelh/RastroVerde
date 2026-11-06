@@ -5,22 +5,17 @@ import { MapaLeitura, type CamadaMapa } from "@/components/mapa/mapa-leitura";
 import { COR_CONTORNO, COR_CONTORNO_SOBREPOSICAO, COR_SOBREPOSICAO } from "@/components/mapa/cores";
 import { SeloRisco, Trilha, classeBotao } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
-import { obterUltimaAnalise, temAnaliseObsoleta } from "@/lib/dados/analises";
+import { contarAnalises, obterUltimaAnalise, temAnaliseObsoleta } from "@/lib/dados/analises";
+import { obterDossieDaAnalise } from "@/lib/dados/dossies";
 import { obterPropriedade, obterTalhao } from "@/lib/dados/propriedades";
 import { formatarPercentual } from "@/lib/geo/analise";
 import { formatarHa } from "@/lib/geo/talhao";
+import { formatarDataIso, formatoDataHora } from "@/lib/formato";
 import { EXPLICACAO_RISCO } from "@/lib/risco";
-import { analisarTalhao } from "./actions";
+import { analisarTalhao, gerarDossie } from "./actions";
 import { BotaoAnalisar } from "./botao-analisar";
 
 export const metadata: Metadata = { title: "Análise do talhão" };
-
-const formatoDataHora = new Intl.DateTimeFormat("pt-BR", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "America/Sao_Paulo",
-});
-const formatoData = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeZone: "UTC" });
 
 export default async function PaginaAnalise({ params }: PageProps<"/propriedades/[id]/talhoes/[talhaoId]/analise">) {
   const { id, talhaoId } = await params;
@@ -29,6 +24,8 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
   const t = await obterTalhao(usuario.id, p.id, talhaoId);
   const analise = await obterUltimaAnalise(usuario.id, t.id);
   const obsoleta = !analise && (await temAnaliseObsoleta(usuario.id, t.id));
+  const qtdAnalises = await contarAnalises(usuario.id, t.id);
+  const dossie = analise ? await obterDossieDaAnalise(usuario.id, analise.id) : null;
   const acao = analisarTalhao.bind(null, p.id, t.id);
 
   const talhao: FeatureCollection = {
@@ -96,6 +93,37 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
             </p>
           )}
 
+          {dossie ? (
+            <div className="space-y-3 rounded-lg border border-green-200 bg-green-50/60 p-4" data-testid="dossie">
+              <div>
+                <p className="text-sm text-stone-600">Dossiê emitido em {formatoDataHora.format(dossie.emitidoEm)}</p>
+                <p className="font-mono text-lg font-semibold text-green-900">{dossie.codigo}</p>
+              </div>
+              <blockquote className="border-l-2 border-green-700 pl-3 text-sm text-stone-800">
+                {dossie.resumo}
+                <footer className="mt-1 text-xs text-stone-600">
+                  {dossie.resumoPorIA ? "Resumo redigido por IA (Gemini)" : "Resumo padrão (IA indisponível)"}
+                </footer>
+              </blockquote>
+              <a href={`/dossies/${dossie.codigo}/pdf`} className={`${classeBotao.primario} w-full`}>
+                Baixar dossiê PDF
+              </a>
+              <a
+                href={`/verificar/${dossie.codigo}`}
+                target="_blank"
+                rel="noopener"
+                className="block text-center text-sm font-medium text-green-800 hover:underline"
+              >
+                Abrir página de verificação
+              </a>
+            </div>
+          ) : analise ? (
+            <BotaoAnalisar
+              acao={gerarDossie.bind(null, p.id, t.id)}
+              rotulo="Gerar dossiê PDF"
+              rotuloPendente="Gerando dossiê…"
+            />
+          ) : null}
           <BotaoAnalisar
             acao={acao}
             rotulo={analise ? "Nova análise" : "Analisar talhão"}
@@ -104,6 +132,14 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
           <Link href={`/propriedades/${p.id}/talhoes/${t.id}`} className={`${classeBotao.secundario} w-full`}>
             Editar talhão
           </Link>
+          {qtdAnalises > 0 ? (
+            <Link
+              href={`/propriedades/${p.id}/talhoes/${t.id}/analise/historico`}
+              className="block text-sm font-medium text-green-800 hover:underline"
+            >
+              Ver histórico ({qtdAnalises})
+            </Link>
+          ) : null}
         </section>
 
         <section aria-label="Mapa da análise" className="space-y-2">
@@ -122,10 +158,12 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
               <span aria-hidden="true" className="inline-block h-3 w-4 border-2 border-green-900 bg-stone-300/50" />
               Talhão
             </span>
-            <span className="flex items-center gap-1.5">
-              <span aria-hidden="true" className="inline-block h-3 w-4 border-2 border-dashed border-red-800 bg-red-600/60" />
-              Sobreposição com alertas após 31/12/2020
-            </span>
+            {sobreposicoes.length > 0 ? (
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true" className="inline-block h-3 w-4 border-2 border-dashed border-red-800 bg-red-600/60" />
+                Sobreposição com alertas após 31/12/2020
+              </span>
+            ) : null}
           </p>
 
           {sobreposicoes.length > 0 ? (
@@ -143,7 +181,7 @@ export default async function PaginaAnalise({ params }: PageProps<"/propriedades
                   {sobreposicoes.map((s, i) => (
                     <tr key={`${s.properties.codigo ?? "sem-codigo"}-${i}`}>
                       <td className="px-4 py-2">{s.properties.codigo ?? "—"}</td>
-                      <td className="px-4 py-2">{formatoData.format(new Date(`${s.properties.dataDeteccao}T00:00:00Z`))}</td>
+                      <td className="px-4 py-2">{formatarDataIso(s.properties.dataDeteccao)}</td>
                       <td className="px-4 py-2 text-right">{formatarHa(s.properties.areaHa)}</td>
                     </tr>
                   ))}

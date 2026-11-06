@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BotaoExcluir } from "@/components/botao-excluir";
 import { LinkBotao, Trilha } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
+import { MOTIVO_BLOQUEIO_TALHAO, contarDossies } from "@/lib/dados/dossies";
 import { listarTalhoes, obterPropriedade, obterTalhao } from "@/lib/dados/propriedades";
 import { colecaoDeTalhoes } from "@/lib/geo/colecao";
 import { excluirTalhao, salvarTalhao } from "../actions";
@@ -15,6 +16,7 @@ export default async function PaginaTalhao({ params }: PageProps<"/propriedades/
   const p = await obterPropriedade(usuario.id, id);
   const t = await obterTalhao(usuario.id, p.id, talhaoId);
   const outros = (await listarTalhoes(usuario.id, p.id)).filter((o) => o.id !== t.id);
+  const temDossie = (await contarDossies(usuario.id, p.id, t.id)) > 0;
 
   return (
     <>
@@ -31,7 +33,11 @@ export default async function PaginaTalhao({ params }: PageProps<"/propriedades/
           <LinkBotao variante="secundario" href={`/propriedades/${p.id}/talhoes/${t.id}/analise`}>
             Ver análise
           </LinkBotao>
-          <BotaoExcluir acao={excluirTalhao.bind(null, p.id, t.id)} confirmacao="Excluir este talhão?" />
+          <BotaoExcluir
+            acao={excluirTalhao.bind(null, p.id, t.id)}
+            confirmacao="Excluir este talhão?"
+            bloqueio={temDossie ? MOTIVO_BLOQUEIO_TALHAO : undefined}
+          />
         </div>
       </div>
       <FormTalhao

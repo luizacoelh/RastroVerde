@@ -26,7 +26,8 @@ export default defineConfig({
     command: `npm run dev -- --port ${PORTA}`,
     url: `http://localhost:${PORTA}/login`,
     // Dev server (Strict Mode ligado) em pasta própria, para não conflitar com o `npm run dev`.
-    env: { NEXT_DIST_DIR: ".next-e2e" },
+    // Sem chave do Gemini: o dossiê usa o texto padrão (RNF10) e o teste não depende da rede.
+    env: { NEXT_DIST_DIR: ".next-e2e", GEMINI_API_KEY: "", APP_URL: "" },
     reuseExistingServer: false,
     timeout: 180_000,
   },

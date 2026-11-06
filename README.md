@@ -5,7 +5,7 @@ Dossiê de conformidade socioambiental para exportação agrícola (EUDR — Reg
 O produtor cadastra o talhão, o sistema cruza o polígono com alertas de desmatamento posteriores a
 31/12/2020 e gera um dossiê em PDF com QR code verificável pelo comprador.
 
-> Status: **Sprint 1 em andamento** — acesso, propriedades e desenho de talhões.
+> Status: **Sprint 3** — dossiê PDF com QR code, resumo por IA e verificação pública.
 
 ## Como rodar
 
@@ -13,7 +13,7 @@ Requisitos: Node.js 22.12+ e um projeto no [Supabase](https://supabase.com) (pla
 
 ```bash
 npm install                # também gera o Prisma Client
-cp .env.example .env       # preencha DATABASE_URL, DIRECT_URL e AUTH_SECRET
+cp .env.example .env       # preencha DATABASE_URL, DIRECT_URL e AUTH_SECRET (APP_URL e GEMINI_* são opcionais)
 npm run db:deploy          # aplica as migrações no banco
 npm run dev                # http://localhost:3000
 ```
@@ -23,7 +23,7 @@ npm run dev                # http://localhost:3000
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Tipos de rota do Next + `tsc` |
 | `npm test` / `npm run test:coverage` | Vitest (cobertura mínima de 70% em `src/lib/geo`) |
-| `npm run test:e2e` | Playwright: cadastro → propriedade → desenho de um talhão de ~5 ha no mapa |
+| `npm run test:e2e` | Playwright: desenho e importação de talhão, análise, dossiê, verificação pública, RN03 e RN04 |
 | `npm run build` | Build de produção |
 | `npm run alertas:importar` | Importa uma base de alertas de desmatamento (veja abaixo) |
 | `npm run db:migrate` | Cria uma nova migração a partir do `prisma/schema.prisma` (desenvolvimento) |
@@ -89,6 +89,20 @@ para outras fontes, passe `--campo-data` e `--campo-codigo`.
 
 Para desenvolvimento há uma base **fictícia** em `e2e/fixtures/` (a mesma do E2E). Não a importe
 no banco de produção: ela cobre uma região real e geraria resultados falsos.
+
+### Dossiê e resumo por IA (US10–US12)
+
+Na tela de resultado, **Gerar dossiê PDF** emite o dossiê da análise atual. O PDF fica guardado
+e não muda depois de emitido. O QR code aponta para `/verificar/{codigo}`, página pública que mostra
+o risco e o hash SHA-256 do PDF e permite ao comprador conferir o arquivo no próprio navegador.
+
+| Variável | Para quê |
+|---|---|
+| `APP_URL` | Endereço público gravado no QR code (em produção, a URL da Vercel). Vazio: usa o endereço da requisição. |
+| `GEMINI_API_KEY` | Opcional. Chave do [Google AI Studio](https://aistudio.google.com/apikey) para o resumo em linguagem simples. Sem ela, o dossiê usa o texto padrão. |
+| `GEMINI_MODEL` | Opcional. Padrão: `gemini-flash-latest`. |
+
+A chave fica só no servidor (`.env` local e variáveis de ambiente da Vercel), nunca no Git.
 
 ### Testes E2E
 

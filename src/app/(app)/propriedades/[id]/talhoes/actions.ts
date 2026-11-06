@@ -4,8 +4,10 @@ import * as z from "zod";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
-import { db } from "@/lib/db";
+import { db, violouChaveEstrangeira } from "@/lib/db";
 import { usuarioAtual } from "@/lib/dal";
+import type { ResultadoExclusao } from "@/components/botao-excluir";
+import { MOTIVO_BLOQUEIO_TALHAO, contarDossies } from "@/lib/dados/dossies";
 import { obterPropriedade } from "@/lib/dados/propriedades";
 import { validarGeometriaTalhao } from "@/lib/geo/talhao";
 import { esquemaTalhao, valoresDoFormulario, type EstadoFormulario } from "@/lib/validacao";
@@ -73,11 +75,20 @@ export async function salvarTalhao(
   redirect(`/propriedades/${propriedadeId}`);
 }
 
-export async function excluirTalhao(propriedadeId: string, talhaoId: string) {
+export async function excluirTalhao(propriedadeId: string, talhaoId: string): Promise<ResultadoExclusao> {
   const usuario = await usuarioAtual();
-  const { count } = await db.talhao.deleteMany({
-    where: { id: talhaoId, propriedadeId, propriedade: { usuarioId: usuario.id } },
-  });
+  // RN04: talhão com dossiê emitido não pode ser excluído. A FK dossie→analise (RESTRICT)
+  // também barra a exclusão no banco, caso um dossiê seja emitido entre a contagem e o delete.
+  if ((await contarDossies(usuario.id, propriedadeId, talhaoId)) > 0) return { erro: MOTIVO_BLOQUEIO_TALHAO };
+  let count: number;
+  try {
+    ({ count } = await db.talhao.deleteMany({
+      where: { id: talhaoId, propriedadeId, propriedade: { usuarioId: usuario.id } },
+    }));
+  } catch (e) {
+    if (violouChaveEstrangeira(e)) return { erro: MOTIVO_BLOQUEIO_TALHAO };
+    throw e;
+  }
   if (count === 0) notFound();
 
   revalidatePath(`/propriedades/${propriedadeId}`);

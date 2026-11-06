@@ -44,7 +44,8 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 
 **US06 — Ver, editar e excluir talhões**
 - Talhão com dossiê emitido não pode ser excluído; o sistema explica o motivo (RN04).
-  *Implementado na Sprint 3, junto com o dossiê (US10).*
+  *Implementado na Sprint 3. A propriedade com talhão que tenha dossiê também fica bloqueada, porque
+  os talhões seriam excluídos em cascata.*
 
 **US05 — Importar talhão GeoJSON** (Should)
 - Aceita arquivo `.geojson`/`.json` de até 1 MB com **um** Polygon ou MultiPolygon em WGS 84;
@@ -64,19 +65,31 @@ Capacidade estimada: ~2 pessoas × 3 sprints ≈ **45–55 pontos**. Os itens **
 - `npm run alertas:importar` grava a base com fonte, versão e área de cobertura; cada fonte/versão
   é importada uma única vez. Feições inválidas são descartadas e listadas com o motivo.
 
+**US09 — Histórico de análises** (Should)
+- A tela do talhão lista todas as análises (data, risco, área sobreposta, base, situação e dossiê);
+  análises obsoletas pela RN03 continuam no histórico.
+
 **US10 — Gerar dossiê**
 - PDF contém: dados da propriedade, mapa do talhão, coordenadas, resultado, fonte dos dados, data, código único, QR code e aviso legal.
+- Só a análise atual (não obsoleta) gera dossiê (RN02/RN03); cada análise gera no máximo um dossiê.
+- O PDF fica guardado e não muda depois de emitido (RN04); o hash SHA-256 é o dos bytes do arquivo.
+
+**US11 — Resumo por IA** (Should)
+- Resumo de até 120 palavras em linguagem simples, gerado pelo Gemini só com dados não pessoais;
+  sem chave, com erro ou após 8 s, entra o texto padrão e o dossiê é emitido mesmo assim (RNF10).
 
 **US12 — Verificação pública**
 - URL `/verificar/{codigo}` sem login mostra: válido/inválido, data, risco e hash do dossiê.
+- O comprador pode conferir o PDF recebido: o hash é calculado no navegador, sem enviar o arquivo.
 
-## Pendências para a Sprint 3 (da revisão da Sprint 2)
+## Pendências da Sprint 2 (resolvidas na Sprint 3)
 
-| Item | História | Observação |
+| Item | História | Como ficou |
 |---|---|---|
-| Risco da última análise na lista de propriedades | US08 | Wireframe 2 (`docs/05-prototipo.md`); hoje o risco aparece só na lista de talhões de cada propriedade. |
-| Teste E2E da RN03 | US06/US07 | Editar o polígono de um talhão analisado deve marcar a análise como obsoleta e pedir nova análise. |
-| Bloqueio de exclusão de talhão com dossiê emitido | US06 | RN04; junto com o dossiê (US10). |
+| Risco da última análise na lista de propriedades | US08 | Tabela do wireframe 2. O risco da propriedade é o do talhão mais crítico, considerando a última análise válida de cada um. |
+| Teste E2E da RN03 | US06/US07 | `e2e/dossie.spec.ts`: renomear mantém a análise; trocar o polígono a torna obsoleta e some o botão do dossiê. |
+| Bloqueio de exclusão de talhão com dossiê emitido | US06 | RN04 na tela e no servidor, com chave estrangeira restritiva no banco. |
+| Legenda de sobreposição sem sobreposição | US08 | A legenda vermelha só aparece quando há sobreposição. |
 
 ## Pós-MVP (registrado, fora das sprints)
 

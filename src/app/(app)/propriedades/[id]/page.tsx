@@ -4,6 +4,7 @@ import { COR_TALHAO } from "@/components/mapa/cores";
 import { MapaLeitura } from "@/components/mapa/mapa-leitura";
 import { LinkBotao, SeloRisco, Trilha } from "@/components/ui";
 import { usuarioAtual } from "@/lib/dal";
+import { MOTIVO_BLOQUEIO_PROPRIEDADE, contarDossies } from "@/lib/dados/dossies";
 import { riscosDosTalhoes } from "@/lib/dados/analises";
 import { listarTalhoes, obterPropriedade } from "@/lib/dados/propriedades";
 import { colecaoDeTalhoes } from "@/lib/geo/colecao";
@@ -18,6 +19,7 @@ export default async function PaginaPropriedade({ params }: PageProps<"/propried
   const p = await obterPropriedade(usuario.id, id);
   const talhoes = await listarTalhoes(usuario.id, p.id);
   const riscos = await riscosDosTalhoes(usuario.id, p.id);
+  const temDossie = (await contarDossies(usuario.id, p.id)) > 0;
   const areaTotal = talhoes.reduce((s, t) => s + t.areaHa, 0);
 
   return (
@@ -44,6 +46,7 @@ export default async function PaginaPropriedade({ params }: PageProps<"/propried
                   ? `Excluir a propriedade e seus ${talhoes.length} talhão(ões)?`
                   : "Excluir esta propriedade?"
               }
+              bloqueio={temDossie ? MOTIVO_BLOQUEIO_PROPRIEDADE : undefined}
             />
           </div>
         </div>

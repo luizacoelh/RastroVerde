@@ -124,3 +124,40 @@ export function formatarHa(valor: number): string {
   if (valor > 0 && valor < 0.01) return "< 0,01 ha";
   return `${formatoHa.format(valor)} ha`;
 }
+
+/**
+ * Centroide (RF15) ponderado pela área de cada anel, em [lng, lat]. Usa projeção plana local,
+ * suficiente para talhões (até 10.000 ha); buracos entram com área negativa.
+ */
+export function calcularCentroide(geometria: GeometriaTalhao): Position {
+  const poligonos = geometria.type === "Polygon" ? [geometria.coordinates] : geometria.coordinates;
+  const [lng0, lat0] = poligonos[0][0][0];
+  const k = Math.cos((lat0 * Math.PI) / 180);
+  let somaA = 0;
+  let somaX = 0;
+  let somaY = 0;
+  for (const aneis of poligonos) {
+    aneis.forEach((anel, i) => {
+      let a = 0;
+      let cx = 0;
+      let cy = 0;
+      for (let j = 0; j < anel.length - 1; j++) {
+        const x1 = (anel[j][0] - lng0) * k;
+        const y1 = anel[j][1] - lat0;
+        const x2 = (anel[j + 1][0] - lng0) * k;
+        const y2 = anel[j + 1][1] - lat0;
+        const cruz = x1 * y2 - x2 * y1;
+        a += cruz;
+        cx += (x1 + x2) * cruz;
+        cy += (y1 + y2) * cruz;
+      }
+      // Anel externo conta positivo e buracos negativo, qualquer que seja o sentido de giro.
+      const sinal = (i === 0 ? 1 : -1) * Math.sign(a);
+      somaA += sinal * a;
+      somaX += sinal * cx;
+      somaY += sinal * cy;
+    });
+  }
+  if (somaA === 0) return [lng0, lat0];
+  return [lng0 + somaX / (3 * somaA) / k, lat0 + somaY / (3 * somaA)];
+}
